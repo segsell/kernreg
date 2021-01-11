@@ -1,0 +1,14 @@
+[flake8]
+select = B,B9,BLK,C,E,F,I,S,W
+ignore = E203,E501,W503
+# E203: Whitespace before ':'
+# E501: Line too long
+# W503: Linebreak before binary operator
+
+max-line-length = 80
+# Bugbear allows 10% more characters (i.e 88)
+
+max-complexity = 10
+application-import-names = kernreg, tests
+import-order-style = google
+per-file-ignores = tests/*:S101
