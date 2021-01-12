@@ -1,9 +1,16 @@
 import math
+from typing import Tuple
 
 import numpy as np
 
 
-def include_weights_from_endpoints(xcounts, ycounts, y, xgrid, grid):
+def include_weights_from_endpoints(
+    xcounts: np.ndarray,
+    ycounts: np.ndarray,
+    y: np.ndarray,
+    xgrid: np.ndarray,
+    grid: int,
+) -> Tuple[np.ndarray, np.ndarray]:
     """ """
     for index, value in enumerate(xgrid):
         if value < 1:
@@ -16,7 +23,7 @@ def include_weights_from_endpoints(xcounts, ycounts, y, xgrid, grid):
     return xcounts, ycounts
 
 
-def is_sorted(a):
+def is_sorted(a: np.ndarray) -> bool:
     """This function checks if the input array is sorted ascendingly."""
     for i in range(a.size - 1):
         if a[i + 1] < a[i]:
@@ -25,8 +32,14 @@ def is_sorted(a):
 
 
 def combine_bincounts_kernelweights(
-    xcounts, ycounts, weights, degree, grid, bandwidth, binwidth
-):
+    xcounts: np.ndarray,
+    ycounts: np.ndarray,
+    weights: np.ndarray,
+    degree: int,
+    grid: int,
+    bandwidth: float,
+    binwidth: float,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     This function combines the bin counts (xcounts) and bin averages (ycounts) with
     kernel weights via a series of direct convolutions. As a result, binned
@@ -119,7 +132,7 @@ def combine_bincounts_kernelweights(
     return weigthedx, weigthedy
 
 
-def get_kernelweights(bandwidth, delta):  # removed tau
+def get_kernelweights(bandwidth: float, delta: float) -> np.ndarray:  # removed tau
     """This function computes approximated weights for the Gaussian kernel."""
     tau = 4
     L = math.floor(tau * bandwidth / delta)  # what is L exactly? relation to N?

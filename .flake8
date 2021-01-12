@@ -11,6 +11,4 @@ max-line-length = 80
 max-complexity = 10
 application-import-names = kernreg, tests
 import-order-style = google
-per-file-ignores =
-    tests/*:S101
-    noxfile.py:ANN
+per-file-ignores = tests/*:S101

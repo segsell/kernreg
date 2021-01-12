@@ -1,7 +1,10 @@
 """This module provides the interface for the local polynomial
 kernel regression.
 """
+from __future__ import annotations
+
 import math
+from typing import Optional
 
 from numba import njit
 import numpy as np
@@ -25,30 +28,18 @@ get_weights_jitted = njit(get_kernelweights)
 combine_bincounts_weights_jitted = njit(combine_bincounts_kernelweights)
 
 
-class UserError(Exception):
-    """This custom error class provides informative feedback in case of a misspecified
-    request by the user.
-    """
-
-    def __init__(self, msg):
-        self.msg = msg
-
-    def __str__(self):
-        return "\n\n         {}\n\n".format(self.msg)
-
-
 def locpoly(
-    x,
-    y,
-    derivative,
-    degree,
-    bandwidth,
-    grid=401,
-    a=None,
-    b=None,
-    binned=False,
-    truncate=True,
-):
+    x: np.ndarray,
+    y: np.ndarray,
+    derivative: int,
+    degree: int,
+    bandwidth: float,
+    grid: int = 401,
+    a: Optional[float] = None,
+    b: Optional[float] = None,
+    binned: bool = False,
+    truncate: bool = True,
+) -> np.ndarray:
     """This function fits a regression function or their derivatives via
     local polynomials. A local polynomial fit requires a weighted
     least-squares regression at every point g = 1,..., M in the grid.
@@ -122,7 +113,7 @@ def locpoly(
     # The input arrays x (predictor) and y (response variable)
     # must be sorted by x.
     if is_sorted_jitted(x) is False:
-        raise UserError("Input arrays x and y must be sorted by x before estimation!")
+        raise Exception("Input arrays x and y must be sorted by x before estimation!")
 
     if a is None:
         a = min(x)
@@ -167,7 +158,13 @@ def locpoly(
     return curvest
 
 
-def get_curve_estimator(weigthedx, weigthedy, degree, derivative, grid):
+def get_curve_estimator(
+    weigthedx: np.ndarray,
+    weigthedy: np.ndarray,
+    degree: int,
+    derivative: int,
+    grid: int,
+) -> np.ndarray:
     """This functions solves the locally weighted least-squares regression
     problem and returns an estimator for the v-th derivative of beta,
     the local polynomial estimator, at all points in the grid.

@@ -7,7 +7,7 @@ from kernreg.residual_squares_criterion import (
 )
 
 
-def test_motorcycle_bw():
+def test_motorcycle_bw() -> None:
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
     time = np.asarray(motorcycle["time"])
     accel = np.asarray(motorcycle["accel"])
@@ -18,7 +18,7 @@ def test_motorcycle_bw():
     np.testing.assert_equal(bw_rsc, expected_bw)
 
 
-def test_motorcycle_bw_with_x_range():
+def test_motorcycle_bw_with_x_range() -> None:
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
     time = np.asarray(motorcycle["time"])
     accel = np.asarray(motorcycle["accel"])
@@ -29,7 +29,7 @@ def test_motorcycle_bw_with_x_range():
     np.testing.assert_equal(bw_rsc, expected_bw)
 
 
-def test_rsc():
+def test_rsc() -> None:
     x = np.linspace(0, 50, 1000)
     y = np.linspace(0, -20, 1000)
 

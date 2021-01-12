@@ -1,4 +1,6 @@
 """This module contains an implementation for the linear binning procedure."""
+from typing import Tuple
+
 from numba import njit
 import numpy as np
 
@@ -8,7 +10,14 @@ from kernreg.funcs_to_jit import include_weights_from_endpoints
 include_weights_from_endpoints_jitted = njit(include_weights_from_endpoints)
 
 
-def linear_binning(x, y, grid, a, binwidth, truncate=True):
+def linear_binning(
+    x: np.ndarray,
+    y: np.ndarray,
+    grid: int,
+    a: float,
+    binwidth: float,
+    truncate: bool = True,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     This function generates bin counts and bin averages over an equally spaced
     grid via the linear binning strategy.

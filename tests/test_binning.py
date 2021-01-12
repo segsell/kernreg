@@ -3,7 +3,7 @@ import numpy as np
 from kernreg.linear_binning import include_weights_from_endpoints, linear_binning
 
 
-def test_binning_truncate_True():
+def test_binning_truncate_True() -> None:
     a, b, grid = 3, 6, 10
     binwidth = (b - a) / (grid - 1)
 
@@ -44,7 +44,7 @@ def test_binning_truncate_True():
     np.testing.assert_almost_equal(ycounts, expected_ycounts, decimal=8)
 
 
-def test_binning_truncate_False():
+def test_binning_truncate_False() -> None:
     a, b, grid = 3, 7, 10
     binwidth = (b - a) / (grid - 1)
 
@@ -85,7 +85,7 @@ def test_binning_truncate_False():
     np.testing.assert_almost_equal(ycounts, expected_ycounts, decimal=8)
 
 
-def test_include_endpoints():
+def test_include_endpoints() -> None:
 
     grid = 10
     y = np.linspace(10, 30, 100)

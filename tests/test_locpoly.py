@@ -8,11 +8,11 @@ from kernreg.locpoly import (
     get_kernelweights,
     is_sorted,
     locpoly,
-    UserError,
+    # UserError,
 )
 
 
-def test_kernelweights():
+def test_kernelweights() -> None:
     bandwidth = 0.1
     a, b, grid = 0, 1, 10
     binwidth = (b - a) / (grid - 1)  # Set the bin width = delta
@@ -23,7 +23,7 @@ def test_kernelweights():
     np.testing.assert_allclose(kernelweights, expected_weights)
 
 
-def test_combine_weights_degree_zero():
+def test_combine_weights_degree_zero() -> None:
     degree = 0  # if degree = 1, no ravel needed --> weightedx multidimensional
     # check regression/integration test if array (shape) handling still works
     # if degree 0 and weightedx of the form [[1], [2], [3] ]
@@ -52,7 +52,7 @@ def test_combine_weights_degree_zero():
     np.testing.assert_allclose(weightedy.ravel(), expected_y)
 
 
-def test_curve_estimation():
+def test_curve_estimation() -> None:
 
     weigthedx = np.asarray([[10]] + [[13]] * 8 + [[10]])
     weigthedy = np.reshape(np.asarray([16] + [22] * 8 + [16]), (-1, 1))
@@ -79,7 +79,7 @@ def test_curve_estimation():
     np.testing.assert_almost_equal(estimate, expected)
 
 
-def test_integration():
+def test_integration() -> None:
 
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
@@ -103,7 +103,7 @@ def test_integration():
     np.testing.assert_array_almost_equal(estimate, expected)
 
 
-def test_locpoly_provide_start_endpoint():
+def test_locpoly_provide_start_endpoint() -> None:
 
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
@@ -127,7 +127,7 @@ def test_locpoly_provide_start_endpoint():
     np.testing.assert_array_almost_equal(estimate, expected)
 
 
-def test_integration_binned_true():
+def test_integration_binned_true() -> None:
 
     x = np.linspace(-10, 20, 500)
     y = np.linspace(30, -200, 500)
@@ -153,7 +153,7 @@ def test_integration_binned_true():
     np.testing.assert_array_almost_equal(estimate, expected)
 
 
-def test_integration_truncate_False():
+def test_integration_truncate_False() -> None:
 
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
@@ -179,34 +179,45 @@ def test_integration_truncate_False():
     np.testing.assert_array_almost_equal(estimate, expected)
 
 
-def test_arr_sorted():
+def test_arr_sorted() -> None:
     sorted_arr = np.linspace(-1, 2, 1001)
     assert is_sorted(sorted_arr)
 
 
-def test_arr_not_sorted():
+def test_arr_not_sorted() -> None:
     sorted_arr = np.random.randint(-1, 2, 1001)
     assert is_sorted(sorted_arr) is False
 
 
-def test_input_arr_not_sorted():
+def test_input_arr_not_sorted() -> None:
     """ """
-    # random.seed(123)
-
-    # sorted_arr = np.linspace(-1, 2, 1001)
     x = np.array([-1, 2, 3, 2, 1])
-    y = np.linspace(3, -20, 1001)
+    y = np.linspace(3, -20, 1000)
 
     msg = "Input arrays x and y must be sorted by x before estimation!"
 
-    with pytest.raises(UserError) as error:
+    with pytest.raises(Exception) as error:
         assert locpoly(
             x, y, derivative=0, degree=1, bandwidth=2, grid=11, a=0, b=2, truncate=False
         )
-    assert str(error.value) == "\n\n         {}\n\n".format(msg)
+    assert str(error.value) == msg
 
 
-def test_integration_motorcycle_data():
+def test_input_arr_not_sorted_ascend() -> None:
+    """ """
+    x = np.linspace(2, -2, 1000)
+    y = np.linspace(3, -20, 1000)
+
+    msg = "Input arrays x and y must be sorted by x before estimation!"
+
+    with pytest.raises(Exception) as error:
+        assert locpoly(
+            x, y, derivative=0, degree=1, bandwidth=2, grid=11, a=0, b=2, truncate=False
+        )
+    assert str(error.value) == msg
+
+
+def test_integration_motorcycle_data() -> None:
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
 
     time = np.asarray(motorcycle["time"])
@@ -221,7 +232,7 @@ def test_integration_motorcycle_data():
     np.testing.assert_array_almost_equal(estimate, expected)
 
 
-def test_combine_weights_with_zeros():
+def test_combine_weights_with_zeros() -> None:
     degree = 1  # if degree = 1, no ravel needed --> weightedx multidimensional
     # check regression/integration test if array (shape) handling still works
     # if degree 0 and weightedx of the form [[1], [2], [3] ]

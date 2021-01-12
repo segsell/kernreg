@@ -1,12 +1,12 @@
 from functools import partial
 import math
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import numpy as np
 
 
 def get_residual_squares_criterion(
-    x: np.ndarray, y: np.ndarray, poly: int, input_arr: Union[list, np.ndarray]
+    x: np.ndarray, y: np.ndarray, poly: int, input_arr: Union[List[float], np.ndarray]
 ) -> float:
     """
     Following the notation in Fan & Gijibell
@@ -63,7 +63,7 @@ def minimize_rsc(
     x: np.ndarray,
     y: np.ndarray,
     poly: int,
-    x_range: Optional[Union[list, np.ndarray]] = None,
+    x_range: Optional[Union[List[float], np.ndarray]] = None,
 ) -> float:
     """
     x_range: list or np.ndarray
