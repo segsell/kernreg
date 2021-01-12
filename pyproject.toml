@@ -26,6 +26,8 @@ mypy = "^0.790"
 pytype = {version = "^2021.1.8", python = "3.8"}
 typeguard = "^2.10.0"
 flake8-annotations = "^2.5.0"
+flake8-docstrings = "^1.5.0"
+darglint = "^1.5.8"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
