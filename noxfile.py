@@ -20,14 +20,10 @@ def install_with_constraints(session: Session, *args: str, **kwargs: Any) -> Non
     versions specified in poetry.lock. This allows you to manage the
     packages as Poetry development dependencies.
 
-    Parameters
-    ----------
-    session: Session
-        The Session object.
-    args: str
-        Command-line arguments for pip.
-    kwargs: Any
-        Additional keyword arguments for Session.install.
+    Arguments:
+        session: The Session object.
+        args: Command-line arguments for pip.
+        kwargs: Additional keyword arguments for Session.install.
 
     """
     with tempfile.NamedTemporaryFile() as requirements:

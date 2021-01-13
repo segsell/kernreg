@@ -1,3 +1,8 @@
+"""Functions to jit.
+
+The following functions are imported by the main modules
+locpoly and linear_binning. There, numba.njit will be applied.
+"""
 import math
 from typing import Tuple
 
@@ -11,7 +16,7 @@ def include_weights_from_endpoints(
     xgrid: np.ndarray,
     grid: int,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """ """
+    """Attach weights from values outside to grid to endpoints."""
     for index, value in enumerate(xgrid):
         if value < 1:
             xcounts[0] += 1
@@ -24,7 +29,7 @@ def include_weights_from_endpoints(
 
 
 def is_sorted(a: np.ndarray) -> bool:
-    """This function checks if the input array is sorted ascendingly."""
+    """Checks if the input array is sorted ascendingly."""
     for i in range(a.size - 1):
         if a[i + 1] < a[i]:
             return False
@@ -40,9 +45,9 @@ def combine_bincounts_kernelweights(
     bandwidth: float,
     binwidth: float,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    This function combines the bin counts (xcounts) and bin averages (ycounts) with
-    kernel weights via a series of direct convolutions. As a result, binned
+    """Combine bin counts and bin averages with kernel weights.
+
+    Use direct convolutions. As a result, binned
     approximations to X'W X and X'W y, denoted by weigthedx and weigthedy, are computed.
 
     Recall that the local polynomial curve estimator beta and its derivatives are
@@ -63,41 +68,20 @@ def combine_bincounts_kernelweights(
     For more information see the documentation of the main function locpoly
     under KernReg.locpoly.
 
-    Parameters
-    ----------
-    xcounts: np.ndarry
-        1-D array of binned x-values ("bin counts") of length grid.
-    ycounts: np.ndarry
-        1-D array of binned y-values ("bin averages") of length grid.
-    grid: int
-        Number of equally-spaced grid points.
-    colx: int
-        Number of columns of output array weigthedx, i.e. the binned
-        approximation to X'W X.
-    coly: int
-        Number of columns of output array weigthedy, i.e the binned
-        approximation to X'W y.
-    length: int
-        Length of 1-D array weights.
-    weights: np.ndarry
-        1-D array of length lenfkap containing
-        approximated weights for the Gaussian kernel
-        (W in the notation above).
-    L: int
-        Parameter defining the number of times the kernel function
-        has to be evaluated.
-        Note that L < N, where N is the total number of observations.
-    mid: int
-        Midpoint of weights.
-    binwidth: float
-        Bin width.
+    Arguments:
+        xcounts: Binned x-values ("bin counts") of length grid.
+        ycounts: Binned y-values ("bin averages") of length grid.
+        weights: Approximated weights for the Gaussian kernel
+        degree: Degree of the polynomial.
+            (W in the notation above).
+            Note that L < N, where N is the total number of observations.
+        grid: Number of equally-spaced grid points.
+        bandwidth: Bandwidth.
+        binwidth: Bin width.
 
-    Returns
-    -------
-    weigthedx: np.ndarry
-        Dimensions (M, colx). Binned approximation to X'W X.
-    weigthedy: np.ndarry
-        Dimensions (M, coly). Binned approximation to X'W y.
+    Returns:
+        weigthedx: Binned approximation to X'W X.
+        weigthedy: Binned approximation to X'W y.
     """
     tau = 4
     L = math.floor(tau * bandwidth / binwidth)
@@ -133,7 +117,16 @@ def combine_bincounts_kernelweights(
 
 
 def get_kernelweights(bandwidth: float, delta: float) -> np.ndarray:  # removed tau
-    """This function computes approximated weights for the Gaussian kernel."""
+    """Compute approximated weights for the Gaussian kernel.
+
+    Arguments:
+        bandwidth: Bandwidth
+        delta: Bin width
+
+    Returns:
+        weights: Kernel weights
+
+    """
     tau = 4
     L = math.floor(tau * bandwidth / delta)  # what is L exactly? relation to N?
     length = 2 * L + 1

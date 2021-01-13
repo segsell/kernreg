@@ -13,4 +13,4 @@ application-import-names = kernreg, tests
 import-order-style = google
 per-file-ignores = tests/*:S101
 
-docstring-convention = numpy
+docstring-convention = google

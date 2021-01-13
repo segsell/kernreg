@@ -1,8 +1,4 @@
-"""This module provides the interface for the local polynomial
-kernel regression.
-"""
-from __future__ import annotations
-
+"""Interface for the local polynomial kernel regression."""
 import math
 from typing import Optional
 
@@ -40,19 +36,20 @@ def locpoly(
     binned: bool = False,
     truncate: bool = True,
 ) -> np.ndarray:
-    """This function fits a regression function or their derivatives via
-    local polynomials. A local polynomial fit requires a weighted
-    least-squares regression at every point g = 1,..., M in the grid.
-    The Gaussian density function is used as kernel weight.
+    """Fit a regression function (or their derivatives) via local polynomials.
 
-    It is recommended that for a v-th derivative the order of the polynomial
+    A local polynomial fit requires a weighted least-squares regression
+    at every point g = 1,..., M in the grid.
+    The Gaussian density function is used as the kernel weight.
+
+    We recommend that for a v-th derivative the order of the polynomial
     be p = v + 1.
 
-    The local polynomial curve estimator beta_ and its derivatives are
+    The local polynomial curve estimator beta and its derivatives are
     minimizers to the locally weighted least-squares problem. At each grid
-    point, beta_ is computed as the solution to the linear matrix equation:
+    point, beta is computed as the solution to the linear matrix equation:
 
-    X'W X * beta_ = X'W y,
+    X'W X * beta = X'W y,
 
     where W are kernel weights approximated by the Gaussian density function.
     X'W X and X'W y are approximated by weigthedx and weigthedy,
@@ -73,42 +70,30 @@ def locpoly(
     package maintained by Brian Ripley and the original Fortran routines
     provided by M.P. Wand.
 
-    Parameters
-    ----------
-    x: np.ndarry
-        Array of x data. Missing values are not accepted. Must be sorted.
-    y: np.ndarry
-        1-D Array of y data. This must be same length as x. Missing values are
-        not accepted. Must be presorted by x.
-    derivative: int
-        Order of the derivative to be estimated.
-    degree: int:
-        Degree of local polynomial used. Its value must be greater than or
-        equal to the value of drv. Generally, users should choose a degree of
-        size drv + 1.
-    bandwidth: int, float, list or np.ndarry
-        Kernel bandwidth smoothing parameter. It may be a scalar or a array of
-        length gridsize.
-    gridsize: int
-        Number of equally-spaced grid points over which the function is to be
-        estimated.
-    a: float
-        Start point of the grid mesh.
-    b: float
-        End point of the grid mesh.
-    binned: bool
-        If True, then x and y are taken to be bin counts rather than raw data
-        and the binning step is skipped.
-    truncate: bool
-        If True, then endpoints are truncated.
+    Arguments:
+        x: Array of x data. Missing values are not accepted. Must be sorted.
+        y: Array of y data. This must be same length as x. Missing values are
+            not accepted. Must be presorted by x.
+        derivative: Order of the derivative to be estimated.
+        degree: Degree of local polynomial used. Its value must be greater than or
+            equal to the value of drv. Generally, users should choose a degree of
+            size drv + 1.
+        bandwidth: Kernel bandwidth smoothing parameter.
+        grid: Number of equally-spaced grid points over which the
+            function is to be estimated.
+        a: Start point of the grid.
+        b: End point of the grid.
+        binned: If True, then x and y are taken to be bin counts rather than raw data
+            and the binning step is skipped.
+        truncate: If True, then endpoints are truncated.
 
-    Returns
-    -------
-    gridpoints: np.ndarry
-        Array of sorted x values, i.e. grid points, at which the estimate
-        of E[Y|X] (or its derivative) is computed.
-    curvest: np.ndarry
-        Array of M local estimators.
+    Returns:
+        gridpoints: Array of sorted x values, i.e. grid points, at which the estimate
+            of E[Y|X] (or its derivative) is computed.
+        curvest: Array of M local estimators.
+
+    Raises:
+        Exception: Input arrays x and y must be sorted by x before estimation!
     """
     # The input arrays x (predictor) and y (response variable)
     # must be sorted by x.
@@ -165,9 +150,9 @@ def get_curve_estimator(
     derivative: int,
     grid: int,
 ) -> np.ndarray:
-    """This functions solves the locally weighted least-squares regression
-    problem and returns an estimator for the v-th derivative of beta,
-    the local polynomial estimator, at all points in the grid.
+    """Solve the locally weighted least-squares regression problem.
+
+    Returns an estimator for the v-th derivative of beta.
 
     Before doing so, the function first turns each row in weightedx into
     an array of size (coly, coly) and each row in weigthedy into
@@ -187,25 +172,15 @@ def get_curve_estimator(
     Note that for a v-th derivative the order of the polynomial
     should be p = v + 1.
 
-    Parameters
-    ----------
-    weigthedx: np.ndarry
-        Dimensions (M, colx). Binned approximation to X'W X.
-    weigthedy: np.ndarry
-        Dimensions (M, coly). Binned approximation to X'W y.
-    coly: int
-        Number of columns of output array weigthedy, i.e the binned
-        approximation to X'W y.
-    derivative: int
-        Order of the derivative to be estimated.
-    grid: int
-        Number of equally-spaced grid points.
+    Arguments:
+        weigthedx: Binned approximation to X'W X.
+        weigthedy: Binned approximation to X'W y.
+        degree: Degree of the polynomial.
+        derivative: Order of the derivative to be estimated.
+        grid: Number of equally-spaced grid points.
 
-    Returns
-    -------
-    curvest: np.ndarray
-        1-D array of length grid. Estimator for the specified
-        derivative at each grid point.
+    Returns:
+        curvest: Estimator for the specified derivative of beta.
     """
     coly = degree + 1
     xmat = np.zeros((coly, coly))

@@ -1,3 +1,4 @@
+"""Test cases for the locpoly module."""
 import numpy as np
 import pandas as pd
 import pytest
@@ -8,11 +9,11 @@ from kernreg.locpoly import (
     get_kernelweights,
     is_sorted,
     locpoly,
-    # UserError,
 )
 
 
 def test_kernelweights() -> None:
+    """Computes symmetric kernelweights for a small grid."""
     bandwidth = 0.1
     a, b, grid = 0, 1, 10
     binwidth = (b - a) / (grid - 1)  # Set the bin width = delta
@@ -24,6 +25,7 @@ def test_kernelweights() -> None:
 
 
 def test_combine_weights_degree_zero() -> None:
+    """Combines bincounts and weights where degree of polynomial is zero."""
     degree = 0  # if degree = 1, no ravel needed --> weightedx multidimensional
     # check regression/integration test if array (shape) handling still works
     # if degree 0 and weightedx of the form [[1], [2], [3] ]
@@ -53,7 +55,7 @@ def test_combine_weights_degree_zero() -> None:
 
 
 def test_curve_estimation() -> None:
-
+    """Computes estimator for first column of beta, i.e. zero-th derivative."""
     weigthedx = np.asarray([[10]] + [[13]] * 8 + [[10]])
     weigthedy = np.reshape(np.asarray([16] + [22] * 8 + [16]), (-1, 1))
 
@@ -80,7 +82,7 @@ def test_curve_estimation() -> None:
 
 
 def test_integration() -> None:
-
+    """It runs the main module to estimate beta."""
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
     estimate = locpoly(x, y, derivative=0, degree=1, bandwidth=2, grid=11)
@@ -104,7 +106,7 @@ def test_integration() -> None:
 
 
 def test_locpoly_provide_start_endpoint() -> None:
-
+    """Run the main module with user-specified start and endpoint of x."""
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
     estimate = locpoly(x, y, derivative=0, degree=1, bandwidth=2, grid=11, a=0, b=2)
@@ -128,7 +130,7 @@ def test_locpoly_provide_start_endpoint() -> None:
 
 
 def test_integration_binned_true() -> None:
-
+    """It runs the main module with binned set to True."""
     x = np.linspace(-10, 20, 500)
     y = np.linspace(30, -200, 500)
     estimate = locpoly(
@@ -154,7 +156,7 @@ def test_integration_binned_true() -> None:
 
 
 def test_integration_truncate_False() -> None:
-
+    """It runs the main module with truncate set to False."""
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
     estimate = locpoly(
@@ -180,17 +182,19 @@ def test_integration_truncate_False() -> None:
 
 
 def test_arr_sorted() -> None:
+    """It exits with a zero status if array is sorted ascendingly."""
     sorted_arr = np.linspace(-1, 2, 1001)
     assert is_sorted(sorted_arr)
 
 
 def test_arr_not_sorted() -> None:
+    """It exits with a non-zero status if array is sorted ascendingly."""
     sorted_arr = np.random.randint(-1, 2, 1001)
     assert is_sorted(sorted_arr) is False
 
 
 def test_input_arr_not_sorted() -> None:
-    """ """
+    """It raises an Exception if unsorted x-array is put into locpoly."""
     x = np.array([-1, 2, 3, 2, 1])
     y = np.linspace(3, -20, 1000)
 
@@ -204,7 +208,7 @@ def test_input_arr_not_sorted() -> None:
 
 
 def test_input_arr_not_sorted_ascend() -> None:
-    """ """
+    """It raises an Exception if x-array is sorted DE-scendingly."""
     x = np.linspace(2, -2, 1000)
     y = np.linspace(3, -20, 1000)
 
@@ -218,6 +222,7 @@ def test_input_arr_not_sorted_ascend() -> None:
 
 
 def test_integration_motorcycle_data() -> None:
+    """It runs locpoly with example data and estimates beta."""
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
 
     time = np.asarray(motorcycle["time"])
@@ -233,6 +238,7 @@ def test_integration_motorcycle_data() -> None:
 
 
 def test_combine_weights_with_zeros() -> None:
+    """It combines bin counts and kernel weights, where some weights are zero."""
     degree = 1  # if degree = 1, no ravel needed --> weightedx multidimensional
     # check regression/integration test if array (shape) handling still works
     # if degree 0 and weightedx of the form [[1], [2], [3] ]

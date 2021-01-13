@@ -1,3 +1,4 @@
+"""Bandwidth selection via the Residual Squares Criterion (RSC)."""
 from functools import partial
 import math
 from typing import List, Optional, Union
@@ -8,15 +9,20 @@ import numpy as np
 def get_residual_squares_criterion(
     x: np.ndarray, y: np.ndarray, poly: int, input_arr: Union[List[float], np.ndarray]
 ) -> float:
-    """
-    Following the notation in Fan & Gijibell
+    """Following the notation in Fan & Gijibell.
 
-    y: np.ndarray
-    x: np.ndarray
+    Arguments:
+        x: Dependent variable
+        y: Independent variable
+        poly: Degree of polynomial
+        input_arr: Array or List containing one pair of
+            a) x0: Value of x to evaluate bandwidth on
+            b) bw: bandwidth
 
-    x0: int
-    bw: int
-    params: np.ndarray
+    Returns:
+        Value of the residual squares criterion for given
+            combination of x0 and bandwidth
+
     """
     x0, bw = input_arr
     delta = x - x0
@@ -65,8 +71,22 @@ def minimize_rsc(
     poly: int,
     x_range: Optional[Union[List[float], np.ndarray]] = None,
 ) -> float:
-    """
-    x_range: list or np.ndarray
+    """Minimize the residual squares criterion.
+
+    This yields the most efficient (optimal?) bandwidth.
+
+    Arguments:
+        x: Dependent variable
+        y: Independent variable
+        poly: Degree of polynomial
+        x_range: (User-specified) range of x-values to consider
+            for bandwidth selection. Default is the entire x-range.
+
+    Returns:
+        Bandwidth that produces the minimal/minimizes residual squares
+            criterion. Adjusted by constant for the Gaussian kernel.
+            See Fan and Gjibels (1995, p. 133)
+
     """
     if x_range is not None:
         xmin = x_range[0]

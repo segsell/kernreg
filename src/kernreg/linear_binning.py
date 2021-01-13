@@ -18,9 +18,10 @@ def linear_binning(
     binwidth: float,
     truncate: bool = True,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """
-    This function generates bin counts and bin averages over an equally spaced
-    grid via the linear binning strategy.
+    """Apply linear binning to input variables x and y.
+
+    Linear binning generates bin counts (x-dimension) and bin averages
+    (y-dmension) over an equally spaced grid.
     In essence, bin counts are obtained by assigning the raw data to
     neighboring grid points. A bin count can be thought of as representing the
     amount of data in the neighborhood of its corresponding grid point.
@@ -29,40 +30,29 @@ def linear_binning(
     The linear binning strategy is based on the transformation
     xgrid = ((x - a) / delta) + 1, which maps each x_i onto its corresponding
     gridpoint. The integer part of xgrid_i indicates the two
-    nearest bin centers to x_i. This calculation already does the trick
-    for simple binning. For linear binning, however, we additionally compute the
-    "fractional part" or binweights = xgrid - bincenters, which gives the weights
-    attached to the two nearest bin centers, namely (1 - binweights) for the bin
+    nearest bin centers to x_i. Additionally, we compute the
+    "fractional part", i.e. binweights = xgrid - bincenters, which yields the weights
+    attached to the two nearest bin centers; namely (1 - binweights) for the bin
     considered and binweights for the next bin.
 
     If truncate is True, end observations are truncated.
     Otherwise, weight from end observations is given to corresponding
     end grid points.
 
-    Parameters
-    ----------
-    x: np.ndarray
-        Array of the predictor variable. Shape (N,).
-        Missing values are not accepted. Must be sorted.
-    y: np.ndarray
-        Array of the response variable. Shape (N,).
-        Missing values are not accepted. Must come presorted by x.
-    grid: int
-        Number of equally-spaced grid points
-        over which x and y are to be evaluated.
-    a: int
-        Start point of the grid.
-    binwidth: float
-        Bin width.
-    truncate: bool
-        If True, then endpoints are truncated.
+    Arguments:
+        x: Array of the predictor variable. Shape (N,). Missing values are not accepted.
+            Must be sorted ascendingly.
+        y: Array of the response variable. Shape (N,). Missing values are not accepted.
+            Must come pre-sorted by x.
+        grid: Number of equally-spaced grid points in the x-dimension.
+            Over this grid, the values of x and y are binned.
+        a: Start point of the grid.
+        binwidth: Width of each of the M bins.
+        truncate: If True, truncate endpoints.
 
-    Returns
-    -------
-    xcounts: np.ndarry
-        Array of binned x-values ("bin counts") of length M.
-    ycounts: np.ndarry
-        Array of binned y-values ("bin averages") of length M.
+    Returns:
+        xcounts: Array of binned x-values ("bin counts"). Of length M.
+        ycounts: Array of binned y-values ("bin averages"). Of length M.
     """
     N = len(x)
 
