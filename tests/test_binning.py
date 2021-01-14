@@ -115,9 +115,7 @@ def test_include_endpoints() -> None:
     xcounts_expected[0], xcounts_expected[9] = 27, 27
     ycounts_expected[0], ycounts_expected[9] = 343.13131314, 580.70707071
 
-    xcounts_after, ycounts_after = include_weights_from_endpoints(
-        xcounts, ycounts, y, xgrid, grid
-    )
+    xcounts, ycounts = include_weights_from_endpoints(xcounts, ycounts, y, xgrid, grid)
 
     np.testing.assert_almost_equal(xcounts, xcounts_expected, decimal=8)
     np.testing.assert_almost_equal(ycounts, ycounts_expected, decimal=8)

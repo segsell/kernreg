@@ -1,4 +1,4 @@
-"""This module contains an implementation for the linear binning procedure."""
+"""Implementation for the linear binning procedure."""
 from typing import Tuple
 
 from numba import njit
