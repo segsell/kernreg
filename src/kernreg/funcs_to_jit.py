@@ -114,6 +114,7 @@ def combine_bincounts_kernelweights(
                             weigthedy[i, j] += (
                                 ycounts[g] * weights[g - i + mid - 1] * fac_
                             )
+
     return weigthedx, weigthedy
 
 

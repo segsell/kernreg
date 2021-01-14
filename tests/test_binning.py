@@ -1,16 +1,30 @@
 """Test cases for the linear_binning module."""
+from typing import Tuple
+
 import numpy as np
+import pytest
+
 
 from kernreg.linear_binning import include_weights_from_endpoints, linear_binning
 
 
-def test_binning_truncate_True() -> None:
+@pytest.fixture
+def generate_test_input() -> Tuple[np.ndarray, np.ndarray]:
+    """Reusable parameterization for x and y inputs."""
+    x = np.linspace(2.2, 6.6, 1000)
+    y = np.linspace(10, 30, 1000)
+
+    return x, y
+
+
+def test_binning_truncate_True(
+    generate_test_input: Tuple[np.ndarray, np.ndarray]
+) -> None:
     """Truncate endpoints."""
     a, b, grid = 3, 6, 10
     binwidth = (b - a) / (grid - 1)
+    x, y = generate_test_input
 
-    x = np.linspace(2.2, 6.6, 1000)
-    y = np.linspace(10, 30, 1000)
     xcounts, ycounts = linear_binning(x, y, grid, a, binwidth, truncate=True)
 
     expected_xcounts = np.array(
@@ -46,13 +60,14 @@ def test_binning_truncate_True() -> None:
     np.testing.assert_almost_equal(ycounts, expected_ycounts, decimal=8)
 
 
-def test_binning_truncate_False() -> None:
+def test_binning_truncate_False(
+    generate_test_input: Tuple[np.ndarray, np.ndarray]
+) -> None:
     """Do not truncate endpoints."""
     a, b, grid = 3, 7, 10
     binwidth = (b - a) / (grid - 1)
+    x, y = generate_test_input
 
-    x = np.linspace(2.2, 6.6, 1000)
-    y = np.linspace(10, 30, 1000)
     xcounts, ycounts = linear_binning(x, y, grid, a, binwidth, truncate=False)
 
     expected_xcounts = np.array(

@@ -12,21 +12,99 @@ from kernreg.locpoly import (
 )
 
 
-def test_kernelweights() -> None:
-    """Computes symmetric kernelweights for a small grid."""
-    bandwidth = 0.1
-    a, b, grid = 0, 1, 10
-    binwidth = (b - a) / (grid - 1)  # Set the bin width = delta
-    kernelweights = get_kernelweights(bandwidth, binwidth)
+# @pytest.fixture  # (params=[array_unsorted, array_sort_descend])
+# def raise_exception():
 
-    symmetric_weights = [0.00386592, 0.08465799, 0.53940751]
-    expected_weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
-    np.testing.assert_allclose(kernelweights, expected_weights)
+#     return
+
+# array_sorted = np.linspace(-2, 2, 1000)
+array_unsorted = np.array([-1, 2, 3, 2, 1])
+array_sort_descend = np.linspace(2, -2, 1000)
 
 
-def test_combine_weights_degree_zero() -> None:
+@pytest.mark.parametrize("x", [array_unsorted, array_sort_descend])
+def test_input_arr_not_sorted_ascend(x: np.ndarray) -> None:
+    """It raises an Exception if unsorted x-array is put into locpoly."""
+    y = np.linspace(3, -20, 1000)
+
+    msg = "Input arrays x and y must be sorted by x before estimation!"
+
+    with pytest.raises(Exception) as error:
+        assert locpoly(
+            x, y, derivative=0, degree=1, bandwidth=2, grid=11, a=0, b=2, truncate=False
+        )
+    assert str(error.value) == msg
+
+
+@pytest.mark.parametrize(
+    "arr,expected",
+    [(np.linspace(-1, 2, 1000), True), (np.linspace(2, -1, 1000), False)],
+)
+def test_arr_not_sorted_ascend(arr: np.ndarray, expected: bool) -> None:
+    """It exits with a zero status if array is sorted ascendingly."""
+    assert is_sorted(arr) is expected
+
+
+# def test_arr_not_sorted() -> None:
+#     """It exits with a non-zero status if array is sorted ascendingly."""
+#     sorted_arr = np.random.randint(-1, 2, 1001)
+#     assert is_sorted(sorted_arr) is False
+
+
+# @pytest.fixture(degree=[0, 1])
+# def input():
+#     bandwidth = 0.1
+#     a, b, grid = 0, 1, 10
+#     binwidth = (b - a) / (grid - 1)
+
+#     xcounts = np.asarray(9 * [6] + [value])
+#     ycounts = np.asarray(10 * [10])
+
+x_positive_counts = np.array(
+    [9.63, 12.63, 13.23, 13.23, 13.23, 13.23, 13.23, 13.2, 12.6, 9.6]
+)
+y_positive_counts = np.array(
+    [16.05, 21.05, 22.05, 22.05, 22.05, 22.05, 22.05, 22, 21, 16]
+)
+x_zero_count = np.array(
+    [
+        [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
+        [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
+        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+        [1.32000000e01, 0.00000000e00, 1.33333333e-01],
+        [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
+        [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
+        [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
+    ]
+)
+y_zero_count = np.array(
+    [
+        [1.60500000e01, 7.94444444e-01],
+        [2.10500000e01, 2.38888889e-01],
+        [2.20500000e01, 1.66666667e-02],
+        [2.20500000e01, 1.66666667e-02],
+        [2.20500000e01, 1.66666667e-02],
+        [2.20500000e01, 1.66666667e-02],
+        [2.20000000e01, 0.00000000e00],
+        [2.10000000e01, -2.22222222e-01],
+        [1.60000000e01, -7.77777778e-01],
+        [6.00000000e00, -7.77777778e-01],
+    ]
+)
+
+
+@pytest.mark.parametrize(
+    "degree,count,expected_x, expected_y",
+    [(0, 6, x_positive_counts, y_positive_counts), (1, 0, x_zero_count, y_zero_count)],
+)
+def test_combine_weights_degree_zero(
+    degree: int, count: int, expected_x: np.ndarray, expected_y: np.ndarray
+) -> None:
     """Combines bincounts and weights where degree of polynomial is zero."""
-    degree = 0  # if degree = 1, no ravel needed --> weightedx multidimensional
+    # if degree = 1, no ravel needed --> weightedx multidimensional
     # check regression/integration test if array (shape) handling still works
     # if degree 0 and weightedx of the form [[1], [2], [3] ]
 
@@ -34,7 +112,34 @@ def test_combine_weights_degree_zero() -> None:
     a, b, grid = 0, 1, 10
     binwidth = (b - a) / (grid - 1)
 
-    xcounts = np.asarray(10 * [6])
+    xcounts = np.asarray(9 * [6] + [count])
+    ycounts = np.asarray(10 * [10])
+
+    symmetric_weights = [0.005, 0.1, 0.5]
+    weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
+
+    weightedx, weightedy = combine_bincounts_kernelweights(
+        xcounts, ycounts, weights, degree, grid, bandwidth, binwidth
+    )
+
+    if degree == 0:
+        weightedx, weightedy = weightedx.ravel(), weightedy.ravel()
+
+    np.testing.assert_allclose(weightedx, expected_x)
+    np.testing.assert_allclose(weightedy, expected_y)
+
+
+def test_combine_weights_with_zeros() -> None:
+    """It combines bin counts and kernel weights, where some weights are zero."""
+    degree = 1  # if degree = 1, no ravel needed --> weightedx multidimensional
+    # check regression/integration test if array (shape) handling still works
+    # if degree 0 and weightedx of the form [[1], [2], [3] ]
+
+    bandwidth = 0.1
+    a, b, grid = 0, 1, 10
+    binwidth = (b - a) / (grid - 1)
+
+    xcounts = np.asarray(9 * [6] + [0])
     ycounts = np.asarray(10 * [10])
 
     symmetric_weights = [0.005, 0.1, 0.5]
@@ -45,13 +150,48 @@ def test_combine_weights_degree_zero() -> None:
     )
 
     expected_x = np.array(
-        [9.63, 12.63, 13.23, 13.23, 13.23, 13.23, 13.23, 13.2, 12.6, 9.6]
+        [
+            [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
+            [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32000000e01, 0.00000000e00, 1.33333333e-01],
+            [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
+            [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
+            [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
+        ]
     )
-    expected_y = np.array([16.05, 21.05, 22.05, 22.05, 22.05, 22.05, 22.05, 22, 21, 16])
+    expected_y = np.array(
+        [
+            [1.60500000e01, 7.94444444e-01],
+            [2.10500000e01, 2.38888889e-01],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20000000e01, 0.00000000e00],
+            [2.10000000e01, -2.22222222e-01],
+            [1.60000000e01, -7.77777778e-01],
+            [6.00000000e00, -7.77777778e-01],
+        ]
+    )
 
-    # .ravel() since only 1-dimensional array
-    np.testing.assert_allclose(weightedx.ravel(), expected_x)
-    np.testing.assert_allclose(weightedy.ravel(), expected_y)
+    np.testing.assert_allclose(weightedx, expected_x)
+    np.testing.assert_allclose(weightedy, expected_y)
+
+
+def test_kernelweights() -> None:
+    """Computes symmetric kernelweights for a small grid."""
+    bandwidth = 0.1
+    a, b, grid = 0, 1, 10
+    binwidth = (b - a) / (grid - 1)  # Set the bin width = delta
+    kernelweights = get_kernelweights(bandwidth, binwidth)
+
+    symmetric_weights = [0.00386592, 0.08465799, 0.53940751]
+    expected_weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
+    np.testing.assert_allclose(kernelweights, expected_weights)
 
 
 def test_curve_estimation() -> None:
@@ -181,46 +321,6 @@ def test_integration_truncate_False() -> None:
     np.testing.assert_array_almost_equal(estimate, expected)
 
 
-def test_arr_sorted() -> None:
-    """It exits with a zero status if array is sorted ascendingly."""
-    sorted_arr = np.linspace(-1, 2, 1001)
-    assert is_sorted(sorted_arr)
-
-
-def test_arr_not_sorted() -> None:
-    """It exits with a non-zero status if array is sorted ascendingly."""
-    sorted_arr = np.random.randint(-1, 2, 1001)
-    assert is_sorted(sorted_arr) is False
-
-
-def test_input_arr_not_sorted() -> None:
-    """It raises an Exception if unsorted x-array is put into locpoly."""
-    x = np.array([-1, 2, 3, 2, 1])
-    y = np.linspace(3, -20, 1000)
-
-    msg = "Input arrays x and y must be sorted by x before estimation!"
-
-    with pytest.raises(Exception) as error:
-        assert locpoly(
-            x, y, derivative=0, degree=1, bandwidth=2, grid=11, a=0, b=2, truncate=False
-        )
-    assert str(error.value) == msg
-
-
-def test_input_arr_not_sorted_ascend() -> None:
-    """It raises an Exception if x-array is sorted DE-scendingly."""
-    x = np.linspace(2, -2, 1000)
-    y = np.linspace(3, -20, 1000)
-
-    msg = "Input arrays x and y must be sorted by x before estimation!"
-
-    with pytest.raises(Exception) as error:
-        assert locpoly(
-            x, y, derivative=0, degree=1, bandwidth=2, grid=11, a=0, b=2, truncate=False
-        )
-    assert str(error.value) == msg
-
-
 def test_integration_motorcycle_data() -> None:
     """It runs locpoly with example data and estimates beta."""
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
@@ -235,56 +335,3 @@ def test_integration_motorcycle_data() -> None:
 
     expected = np.genfromtxt("tests/resources/motorcycle_expected_estimate.csv")
     np.testing.assert_array_almost_equal(estimate, expected)
-
-
-def test_combine_weights_with_zeros() -> None:
-    """It combines bin counts and kernel weights, where some weights are zero."""
-    degree = 1  # if degree = 1, no ravel needed --> weightedx multidimensional
-    # check regression/integration test if array (shape) handling still works
-    # if degree 0 and weightedx of the form [[1], [2], [3] ]
-
-    bandwidth = 0.1
-    a, b, grid = 0, 1, 10
-    binwidth = (b - a) / (grid - 1)
-
-    xcounts = np.asarray(9 * [6] + [0])
-    ycounts = np.asarray(10 * [10])
-
-    symmetric_weights = [0.005, 0.1, 0.5]
-    weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
-
-    weightedx, weightedy = combine_bincounts_kernelweights(
-        xcounts, ycounts, weights, degree, grid, bandwidth, binwidth
-    )
-
-    expected_x = np.array(
-        [
-            [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
-            [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
-            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-            [1.32000000e01, 0.00000000e00, 1.33333333e-01],
-            [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
-            [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
-            [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
-        ]
-    )
-    expected_y = np.array(
-        [
-            [1.60500000e01, 7.94444444e-01],
-            [2.10500000e01, 2.38888889e-01],
-            [2.20500000e01, 1.66666667e-02],
-            [2.20500000e01, 1.66666667e-02],
-            [2.20500000e01, 1.66666667e-02],
-            [2.20500000e01, 1.66666667e-02],
-            [2.20000000e01, 0.00000000e00],
-            [2.10000000e01, -2.22222222e-01],
-            [1.60000000e01, -7.77777778e-01],
-            [6.00000000e00, -7.77777778e-01],
-        ]
-    )
-
-    np.testing.assert_allclose(weightedx, expected_x)
-    np.testing.assert_allclose(weightedy, expected_y)
