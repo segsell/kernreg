@@ -82,6 +82,7 @@ def combine_bincounts_kernelweights(
     Returns:
         weigthedx: Binned approximation to X'W X.
         weigthedy: Binned approximation to X'W y.
+
     """
     tau = 4
     L = math.floor(tau * bandwidth / binwidth)
@@ -99,7 +100,7 @@ def combine_bincounts_kernelweights(
             for i in range(max(0, g - L - 1), min(grid, g + L)):
 
                 if 0 <= i <= grid - 1 and 0 <= g - i + mid - 1 <= length - 1:
-                    fac_ = 1
+                    fac_ = 1.0
 
                     weigthedx[i, 0] += xcounts[g] * weights[g - i + mid - 1]
                     weigthedy[i, 0] += ycounts[g] * weights[g - i + mid - 1]

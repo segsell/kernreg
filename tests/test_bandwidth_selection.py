@@ -2,26 +2,23 @@
 import numpy as np
 import pandas as pd  # change motorcylce dta to csv?
 
-from kernreg.residual_squares_criterion import (
-    get_residual_squares_criterion,
-    minimize_rsc,
-)
+from kernreg.residual_squares_criterion import minimize_rsc
 
 
-def test_rsc() -> None:
-    """Calls inner function directly."""
-    x = np.linspace(0, 50, 1000)
-    y = np.linspace(0, -20, 1000)
+# def test_rsc() -> None:
+#     """Calls inner function directly."""
+#     x = np.linspace(0, 50, 1000)
+#     y = np.linspace(0, -20, 1000)
 
-    # Look at one specific iteration of x0 and bw.
-    x0, bw = 20, 3
+#     # Look at one specific iteration of x0 and bw.
+#     x0, bw = 20, 3
 
-    rsc = get_residual_squares_criterion(x, y, poly=3, input_arr=np.asarray([x0, bw]))
-    expected = 4.1101045969245315e-29  # 1.443732936227206e-29
+#     rsc = get_residual_squares_criterion(x, y, poly=3, input_arr=np.asarray([x0, bw]))
+#     expected = 4.1101045969245315e-29  # 1.443732936227206e-29
 
-    # np.testing.assert_allclose(rsc, expected)
-    np.testing.assert_equal(rsc, expected)
-    # assert rsc == expected
+#     # np.testing.assert_allclose(rsc, expected)
+#     np.testing.assert_equal(rsc, expected)
+#     # assert rsc == expected
 
 
 def test_motorcycle_bw() -> None:
