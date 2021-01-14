@@ -23,6 +23,9 @@ is_sorted_jitted = njit(is_sorted)
 get_weights_jitted = njit(get_kernelweights)
 combine_bincounts_weights_jitted = njit(combine_bincounts_kernelweights)
 
+# gridpoints: Array of sorted x values, i.e. grid points, at which the estimate
+# of E[Y|X] (or its derivative) is computed.
+
 
 def locpoly(
     x: np.ndarray,
@@ -88,12 +91,11 @@ def locpoly(
         truncate: If True, then endpoints are truncated.
 
     Returns:
-        gridpoints: Array of sorted x values, i.e. grid points, at which the estimate
-            of E[Y|X] (or its derivative) is computed.
-        curvest: Array of M local estimators.
+        np.ndarray: Array of M local estimators.
 
     Raises:
-        Exception: Input arrays x and y must be sorted by x before estimation!
+        Exception: If input arrays x and y must be sorted by x before estimation!
+
     """
     # The input arrays x (predictor) and y (response variable)
     # must be sorted by x.
@@ -181,6 +183,7 @@ def get_curve_estimator(
 
     Returns:
         curvest: Estimator for the specified derivative of beta.
+
     """
     coly = degree + 1
     xmat = np.zeros((coly, coly))
