@@ -12,6 +12,7 @@ from kernreg.funcs_to_jit import (
     is_sorted,
 )
 from kernreg.linear_binning import linear_binning
+from kernreg.residual_squares_criterion import minimize_rsc
 
 # Jit the functions
 # Implemented as additional step since pytest-cov does not consider
@@ -32,8 +33,8 @@ def locpoly(
     y: np.ndarray,
     derivative: int,
     degree: int,
-    bandwidth: float,
     grid: int = 401,
+    bandwidth: Optional[float] = None,
     a: Optional[float] = None,
     b: Optional[float] = None,
     binned: bool = False,
@@ -107,6 +108,9 @@ def locpoly(
 
     if b is None:
         b = max(x)
+
+    if bandwidth is None:
+        bandwidth = minimize_rsc(x, y, degree, [a, b])
 
     # tau is chosen so that the interval [-tau, tau] is the
     # "effective support" of the Gaussian kernel,
