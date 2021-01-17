@@ -1,5 +1,5 @@
 """Test cases for the locpoly module."""
-from typing import Union
+from typing import Any, Callable, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -14,49 +14,112 @@ from kernreg.locpoly import (
 )
 
 
-array_sorted = np.linspace(-2, 2, 1000)
-array_unsorted = np.array([-1, 2, 3, 2, 1])
-array_sort_descend = np.linspace(2, -2, 1000)
+# x_positive_counts = np.array(
+#     [9.63, 12.63, 13.23, 13.23, 13.23, 13.23, 13.23, 13.2, 12.6, 9.6]
+# )
+# y_positive_counts = np.array(
+#     [16.05, 21.05, 22.05, 22.05, 22.05, 22.05, 22.05, 22, 21, 16]
+# )
+# x_zero_count = np.array(
+#     [
+#         [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
+#         [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
+#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+#         [1.32000000e01, 0.00000000e00, 1.33333333e-01],
+#         [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
+#         [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
+#         [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
+#     ]
+# )
+# y_zero_count = np.array(
+#     [
+#         [1.60500000e01, 7.94444444e-01],
+#         [2.10500000e01, 2.38888889e-01],
+#         [2.20500000e01, 1.66666667e-02],
+#         [2.20500000e01, 1.66666667e-02],
+#         [2.20500000e01, 1.66666667e-02],
+#         [2.20500000e01, 1.66666667e-02],
+#         [2.20000000e01, 0.00000000e00],
+#         [2.10000000e01, -2.22222222e-01],
+#         [1.60000000e01, -7.77777778e-01],
+#         [6.00000000e00, -7.77777778e-01],
+#     ]
+# )
 
-x_positive_counts = np.array(
-    [9.63, 12.63, 13.23, 13.23, 13.23, 13.23, 13.23, 13.2, 12.6, 9.6]
-)
-y_positive_counts = np.array(
-    [16.05, 21.05, 22.05, 22.05, 22.05, 22.05, 22.05, 22, 21, 16]
-)
-x_zero_count = np.array(
-    [
-        [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
-        [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
-        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-        [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-        [1.32000000e01, 0.00000000e00, 1.33333333e-01],
-        [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
-        [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
-        [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
-    ]
-)
-y_zero_count = np.array(
-    [
-        [1.60500000e01, 7.94444444e-01],
-        [2.10500000e01, 2.38888889e-01],
-        [2.20500000e01, 1.66666667e-02],
-        [2.20500000e01, 1.66666667e-02],
-        [2.20500000e01, 1.66666667e-02],
-        [2.20500000e01, 1.66666667e-02],
-        [2.20000000e01, 0.00000000e00],
-        [2.10000000e01, -2.22222222e-01],
-        [1.60000000e01, -7.77777778e-01],
-        [6.00000000e00, -7.77777778e-01],
-    ]
-)
+# array_sorted = np.linspace(-2, 2, 1000)
+# array_unsorted = np.array([-1, 2, 3, 2, 1])
+# array_sort_descend = np.linspace(2, -2, 1000)
 
 
-@pytest.mark.parametrize("x", [array_unsorted, array_sort_descend])
-def test_input_arr_not_sorted_ascend(x: np.ndarray) -> None:
+@pytest.fixture
+def array_sorted() -> np.ndarray:
+    """Input array sorted ascendingly."""
+    return np.linspace(-2, 2, 1000)
+
+
+@pytest.fixture
+def array_unsorted() -> np.ndarray:
+    """Unsorted input array."""
+    return np.array([-1, 2, 3, 2, 1])
+
+
+@pytest.fixture
+def array_sort_descend() -> np.ndarray:
+    """Input array sorted descendingly."""
+    return np.linspace(2, -2, 1000)
+
+
+@pytest.fixture
+def output_positive_counts() -> Tuple[np.ndarray, np.ndarray]:
+    """Expected toy output for weighted x and y."""
+    x = np.array([9.63, 12.63, 13.23, 13.23, 13.23, 13.23, 13.23, 13.2, 12.6, 9.6])
+    y = np.array([16.05, 21.05, 22.05, 22.05, 22.05, 22.05, 22.05, 22, 21, 16])
+
+    return x, y
+
+
+@pytest.fixture
+def output_zero_count() -> Tuple[np.ndarray, np.ndarray]:
+    """Expected toy output for weighted x and y, where xcounts contains a zero."""
+    x = np.array(
+        [
+            [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
+            [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
+            [1.32000000e01, 0.00000000e00, 1.33333333e-01],
+            [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
+            [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
+            [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
+        ]
+    )
+    y = np.array(
+        [
+            [1.60500000e01, 7.94444444e-01],
+            [2.10500000e01, 2.38888889e-01],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20500000e01, 1.66666667e-02],
+            [2.20000000e01, 0.00000000e00],
+            [2.10000000e01, -2.22222222e-01],
+            [1.60000000e01, -7.77777778e-01],
+            [6.00000000e00, -7.77777778e-01],
+        ]
+    )
+
+    return x, y
+
+
+@pytest.mark.parametrize("arr", ["array_unsorted", "array_sort_descend"])
+def test_input_arr_not_sorted_ascend(arr: Callable, request: Any) -> None:
     """It raises an Exception if unsorted x-array is put into locpoly."""
+    x = request.getfixturevalue(arr)
     y = np.linspace(3, -20, 1000)
 
     msg = "Input arrays x and y must be sorted by x before estimation!"
@@ -70,35 +133,22 @@ def test_input_arr_not_sorted_ascend(x: np.ndarray) -> None:
 
 @pytest.mark.parametrize(
     "arr, expected",
-    [(array_sorted, True), (array_unsorted, False)],
+    [("array_sorted", True), ("array_unsorted", False)],
 )
-def test_arr_not_sorted_ascend(arr: np.ndarray, expected: bool) -> None:
+def test_arr_not_sorted_ascend(arr: Callable, expected: bool, request: Any) -> None:
     """It exits with a zero status if array is sorted ascendingly."""
-    assert is_sorted(arr) is expected
-
-
-# def test_arr_not_sorted() -> None:
-#     """It exits with a non-zero status if array is sorted ascendingly."""
-#     sorted_arr = np.random.randint(-1, 2, 1001)
-#     assert is_sorted(sorted_arr) is False
-
-
-# @pytest.fixture(degree=[0, 1])
-# def input():
-#     bandwidth = 0.1
-#     a, b, grid = 0, 1, 10
-#     binwidth = (b - a) / (grid - 1)
-
-#     xcounts = np.asarray(9 * [6] + [value])
-#     ycounts = np.asarray(10 * [10])
+    assert is_sorted(request.getfixturevalue(arr)) is expected
 
 
 @pytest.mark.parametrize(
-    "degree,count,expected_x, expected_y",
-    [(0, 6, x_positive_counts, y_positive_counts), (1, 0, x_zero_count, y_zero_count)],
+    "degree, count, expected",
+    [
+        (0, 6, "output_positive_counts"),
+        (1, 0, "output_zero_count"),
+    ],
 )
 def test_combine_weights_degree_zero(
-    degree: int, count: int, expected_x: np.ndarray, expected_y: np.ndarray
+    degree: int, count: int, expected: Callable, request: Any
 ) -> None:
     """Combines bincounts and weights where degree of polynomial is zero."""
     # if degree = 1, no ravel needed --> weightedx multidimensional
@@ -122,8 +172,26 @@ def test_combine_weights_degree_zero(
     if degree == 0:
         weightedx, weightedy = weightedx.ravel(), weightedy.ravel()
 
+    expected_x, expected_y = request.getfixturevalue(expected)
+
     np.testing.assert_allclose(weightedx, expected_x)
     np.testing.assert_allclose(weightedy, expected_y)
+
+
+# def test_arr_not_sorted() -> None:
+#     """It exits with a non-zero status if array is sorted ascendingly."""
+#     sorted_arr = np.random.randint(-1, 2, 1001)
+#     assert is_sorted(sorted_arr) is False
+
+
+# @pytest.fixture(degree=[0, 1])
+# def input():
+#     bandwidth = 0.1
+#     a, b, grid = 0, 1, 10
+#     binwidth = (b - a) / (grid - 1)
+
+#     xcounts = np.asarray(9 * [6] + [value])
+#     ycounts = np.asarray(10 * [10])
 
 
 # def test_combine_weights_with_zeros() -> None:
