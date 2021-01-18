@@ -14,46 +14,6 @@ from kernreg.locpoly import (
 )
 
 
-# x_positive_counts = np.array(
-#     [9.63, 12.63, 13.23, 13.23, 13.23, 13.23, 13.23, 13.2, 12.6, 9.6]
-# )
-# y_positive_counts = np.array(
-#     [16.05, 21.05, 22.05, 22.05, 22.05, 22.05, 22.05, 22, 21, 16]
-# )
-# x_zero_count = np.array(
-#     [
-#         [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
-#         [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
-#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#         [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#         [1.32000000e01, 0.00000000e00, 1.33333333e-01],
-#         [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
-#         [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
-#         [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
-#     ]
-# )
-# y_zero_count = np.array(
-#     [
-#         [1.60500000e01, 7.94444444e-01],
-#         [2.10500000e01, 2.38888889e-01],
-#         [2.20500000e01, 1.66666667e-02],
-#         [2.20500000e01, 1.66666667e-02],
-#         [2.20500000e01, 1.66666667e-02],
-#         [2.20500000e01, 1.66666667e-02],
-#         [2.20000000e01, 0.00000000e00],
-#         [2.10000000e01, -2.22222222e-01],
-#         [1.60000000e01, -7.77777778e-01],
-#         [6.00000000e00, -7.77777778e-01],
-#     ]
-# )
-
-# array_sorted = np.linspace(-2, 2, 1000)
-# array_unsorted = np.array([-1, 2, 3, 2, 1])
-# array_sort_descend = np.linspace(2, -2, 1000)
-
-
 @pytest.fixture
 def array_sorted() -> np.ndarray:
     """Input array sorted ascendingly."""
@@ -114,6 +74,69 @@ def output_zero_count() -> Tuple[np.ndarray, np.ndarray]:
     )
 
     return x, y
+
+
+@pytest.fixture
+def output_integration_false_true() -> np.ndarray:
+    """Output array for binned=False and truncate=True."""
+    arr = np.array(
+        [
+            -8.21970601,
+            -8.78389651,
+            -9.30816104,
+            -9.79135319,
+            -10.23230278,
+            -10.62981337,
+            -10.9826599,
+            -11.28958658,
+            -11.54930484,
+            -11.76049163,
+            -11.92178784,
+        ]
+    )
+    return arr
+
+
+@pytest.fixture
+def output_integration_true_true() -> np.ndarray:
+    """Output array for binned=True and truncate=True."""
+    arr = np.array(
+        [
+            -3.0005839,
+            -2.98618264,
+            -2.97177475,
+            -2.95736025,
+            -2.94293914,
+            -2.92851141,
+            -2.91407707,
+            -2.89963612,
+            -2.88518855,
+            -2.87073435,
+            -2.85627352,
+        ]
+    )
+    return arr
+
+
+@pytest.fixture
+def output_integration_false_false() -> np.ndarray:
+    """Output array for binned=False and truncate=False."""
+    arr = np.array(
+        [
+            -3.38271026,
+            -4.5850677,
+            -5.74380798,
+            -6.85848024,
+            -7.92856605,
+            -8.9534749,
+            -9.93253988,
+            -10.86501327,
+            -11.75006237,
+            -12.58676545,
+            -13.37410782,
+        ]
+    )
+    return arr
 
 
 @pytest.mark.parametrize("arr", ["array_unsorted", "array_sort_descend"])
@@ -178,75 +201,6 @@ def test_combine_weights_degree_zero(
     np.testing.assert_allclose(weightedy, expected_y)
 
 
-# def test_arr_not_sorted() -> None:
-#     """It exits with a non-zero status if array is sorted ascendingly."""
-#     sorted_arr = np.random.randint(-1, 2, 1001)
-#     assert is_sorted(sorted_arr) is False
-
-
-# @pytest.fixture(degree=[0, 1])
-# def input():
-#     bandwidth = 0.1
-#     a, b, grid = 0, 1, 10
-#     binwidth = (b - a) / (grid - 1)
-
-#     xcounts = np.asarray(9 * [6] + [value])
-#     ycounts = np.asarray(10 * [10])
-
-
-# def test_combine_weights_with_zeros() -> None:
-#     """It combines bin counts and kernel weights, where some weights are zero."""
-#     degree = 1  # if degree = 1, no ravel needed --> weightedx multidimensional
-#     # check regression/integration test if array (shape) handling still works
-#     # if degree 0 and weightedx of the form [[1], [2], [3] ]
-
-#     bandwidth = 0.1
-#     a, b, grid = 0, 1, 10
-#     binwidth = (b - a) / (grid - 1)
-
-#     xcounts = np.asarray(9 * [6] + [0])
-#     ycounts = np.asarray(10 * [10])
-
-#     symmetric_weights = [0.005, 0.1, 0.5]
-#     weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
-
-#     weightedx, weightedy = combine_bincounts_kernelweights(
-#         xcounts, ycounts, weights, degree, grid, bandwidth, binwidth
-#     )
-
-#     expected_x = np.array(
-#         [
-#             [9.63000000e00, 4.76666667e-01, 7.00000000e-02],
-#             [1.26300000e01, 1.43333333e-01, 1.07037037e-01],
-#             [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#             [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#             [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#             [1.32300000e01, 1.00000000e-02, 1.36666667e-01],
-#             [1.32000000e01, 0.00000000e00, 1.33333333e-01],
-#             [1.26000000e01, -1.33333333e-01, 1.03703704e-01],
-#             [9.60000000e00, -4.66666667e-01, 6.66666667e-02],
-#             [3.60000000e00, -4.66666667e-01, 6.66666667e-02],
-#         ]
-#     )
-#     expected_y = np.array(
-#         [
-#             [1.60500000e01, 7.94444444e-01],
-#             [2.10500000e01, 2.38888889e-01],
-#             [2.20500000e01, 1.66666667e-02],
-#             [2.20500000e01, 1.66666667e-02],
-#             [2.20500000e01, 1.66666667e-02],
-#             [2.20500000e01, 1.66666667e-02],
-#             [2.20000000e01, 0.00000000e00],
-#             [2.10000000e01, -2.22222222e-01],
-#             [1.60000000e01, -7.77777778e-01],
-#             [6.00000000e00, -7.77777778e-01],
-#         ]
-#     )
-
-#     np.testing.assert_allclose(weightedx, expected_x)
-#     np.testing.assert_allclose(weightedy, expected_y)
-
-
 def test_kernelweights() -> None:
     """Computes symmetric kernelweights for a small grid."""
     bandwidth = 0.1
@@ -286,94 +240,18 @@ def test_curve_estimation() -> None:
     np.testing.assert_almost_equal(estimate, expected)
 
 
-# def test_integration() -> None:
-#     """It runs the main module to estimate beta."""
-#     x = np.linspace(-1, 2, 1001)
-#     y = np.linspace(3, -20, 1001)
-#     estimate = locpoly(x, y, derivative=0, degree=1, bandwidth=2, grid=11)
-
-#     expected = np.array(
-#         [
-#             2.78673,
-#             0.532652,
-#             -1.723597,
-#             -3.981458,
-#             -6.240384,
-#             -8.499833,
-#             -10.759265,
-#             -13.018143,
-#             -15.275922,
-#             -17.532054,
-#             -19.785975,
-#         ]
-#     )
-#     np.testing.assert_array_almost_equal(estimate, expected)
-
-
 @pytest.mark.parametrize(
     "binned, truncate, expected",
     [
-        (
-            False,
-            True,
-            np.array(
-                [
-                    -8.21970601,
-                    -8.78389651,
-                    -9.30816104,
-                    -9.79135319,
-                    -10.23230278,
-                    -10.62981337,
-                    -10.9826599,
-                    -11.28958658,
-                    -11.54930484,
-                    -11.76049163,
-                    -11.92178784,
-                ]
-            ),
-        ),
-        (
-            True,
-            True,
-            np.array(
-                [
-                    -3.0005839,
-                    -2.98618264,
-                    -2.97177475,
-                    -2.95736025,
-                    -2.94293914,
-                    -2.92851141,
-                    -2.91407707,
-                    -2.89963612,
-                    -2.88518855,
-                    -2.87073435,
-                    -2.85627352,
-                ]
-            ),
-        ),
-        (
-            False,
-            False,
-            np.array(
-                [
-                    -3.38271026,
-                    -4.5850677,
-                    -5.74380798,
-                    -6.85848024,
-                    -7.92856605,
-                    -8.9534749,
-                    -9.93253988,
-                    -10.86501327,
-                    -11.75006237,
-                    -12.58676545,
-                    -13.37410782,
-                ]
-            ),
-        ),
+        (False, True, "output_integration_false_true"),
+        (True, True, "output_integration_true_true"),
+        (False, False, "output_integration_false_false"),
     ],
 )
-def test_integration(binned: bool, truncate: bool, expected: np.ndarray) -> None:
-    """It runs locpoly."""
+def test_integration(
+    binned: bool, truncate: bool, expected: Callable, request: Any
+) -> None:
+    """It determines degree of the polynomial based on order of the derivative."""
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
 
@@ -381,7 +259,6 @@ def test_integration(binned: bool, truncate: bool, expected: np.ndarray) -> None
         x,
         y,
         derivative=0,
-        degree=1,
         grid=11,
         bandwidth=2,
         a=0,
@@ -390,83 +267,7 @@ def test_integration(binned: bool, truncate: bool, expected: np.ndarray) -> None
         truncate=truncate,
     )
 
-    np.testing.assert_almost_equal(estimate, expected)
-
-
-# def test_integration_provide_start_endpoint() -> None:
-#     """Runs the main module with user-specified start and endpoint of x."""
-#     x = np.linspace(-1, 2, 1001)
-#     y = np.linspace(3, -20, 1001)
-#     estimate = locpoly(x, y, derivative=0, degree=1, grid=11, bandwidth=2, a=0, b=2)
-
-#     expected = np.array(
-#         [
-#             -8.219706,
-#             -8.783897,
-#             -9.308161,
-#             -9.791353,
-#             -10.232303,
-#             -10.629813,
-#             -10.98266,
-#             -11.289587,
-#             -11.549305,
-#             -11.760492,
-#             -11.921788,
-#         ]
-#     )
-#     np.testing.assert_array_almost_equal(estimate, expected)
-
-
-# def test_integration_binned_true() -> None:
-#     """It runs the main module with binned set to True."""
-#     x = np.linspace(-10, 20, 500)
-#     y = np.linspace(30, -200, 500)
-#     estimate = locpoly(
-#         x, y, derivative=0, degree=1, grid=11, bandwidth=2, a=0, b=2, binned=True
-#     )
-
-#     expected = np.array(
-#         [
-#             -3.002416,
-#             -2.972707,
-#             -2.942971,
-#             -2.913206,
-#             -2.883414,
-#             -2.853594,
-#             -2.823746,
-#             -2.79387,
-#             -2.763967,
-#             -2.734035,
-#             -2.704076,
-#         ]
-#     )
-#     np.testing.assert_array_almost_equal(estimate, expected)
-
-
-# def test_integration_truncate_False() -> None:
-#     """It runs the main module with truncate set to False."""
-#     x = np.linspace(-1, 2, 1001)
-#     y = np.linspace(3, -20, 1001)
-#     estimate = locpoly(
-#         x, y, derivative=0, degree=1, grid=11, bandwidth=2, a=0, b=2, truncate=False
-#     )
-
-#     expected = np.array(
-#         [
-#             -3.38271,
-#             -4.585068,
-#             -5.743808,
-#             -6.85848,
-#             -7.928566,
-#             -8.953475,
-#             -9.93254,
-#             -10.865013,
-#             -11.750062,
-#             -12.586765,
-#             -13.374108,
-#         ]
-#     )
-#     np.testing.assert_array_almost_equal(estimate, expected)
+    np.testing.assert_almost_equal(estimate, request.getfixturevalue(expected))
 
 
 @pytest.mark.parametrize(
@@ -488,21 +289,3 @@ def test_integration_motorcycle_data(
     estimate = locpoly(x=time, y=accel, derivative=0, degree=1, grid=101, bandwidth=bw)
 
     np.testing.assert_almost_equal(estimate, expected)
-
-
-# def test_integration_motorcycle_data_autoselect_bw() -> None:
-#     """It runs locpoly without a user-specified bandwidth."""
-#     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
-
-#     time = np.asarray(motorcycle["time"])
-#     accel = np.asarray(motorcycle["accel"])
-
-#     estimate = locpoly(x=time, y=accel, derivative=0, degree=1, grid=101)
-#     np.savetxt(
-#         "tests/resources/motorcycle_expected_estimate_auto_bw.csv",
-#         estimate,
-#         delimiter=",",
-#     )
-
-#     expected = np.genfromtxt("tests/resources/motorcycle_expected_estimate.csv")
-#     np.testing.assert_almost_equal(estimate, expected)
