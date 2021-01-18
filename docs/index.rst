@@ -5,8 +5,9 @@ Kernreg
     :hidden:
     :maxdepth: 1
 
-    license
     reference
+    license
+
 
 Package for local polynomial kernel regression including automatic bandwidth selection.
 

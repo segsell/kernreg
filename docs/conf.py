@@ -6,4 +6,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
+    "sphinxcontrib.bibtex",
 ]
+
+bibtex_bibfiles = ["refs.bib"]

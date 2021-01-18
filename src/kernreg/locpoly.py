@@ -1,4 +1,4 @@
-"""Interface for the local polynomial kernel regression."""
+"""Estimate Functions Using Local Polynomials."""
 import math
 from typing import Optional
 
@@ -12,6 +12,7 @@ from kernreg.funcs_to_jit import (
     is_sorted,
 )
 from kernreg.linear_binning import linear_binning
+from kernreg.residual_squares_criterion import minimize_rsc
 
 # Jit the functions
 # Implemented as additional step since pytest-cov does not consider
@@ -31,15 +32,20 @@ def locpoly(
     x: np.ndarray,
     y: np.ndarray,
     derivative: int,
-    degree: int,
-    bandwidth: float,
+    degree: Optional[int] = None,
     grid: int = 401,
+    bandwidth: Optional[float] = None,
     a: Optional[float] = None,
     b: Optional[float] = None,
     binned: bool = False,
     truncate: bool = True,
 ) -> np.ndarray:
-    """Fit a regression function (or their derivatives) via local polynomials.
+    """Estimates a regression function or their derivatives using local polynomials.
+
+    Non-linear/Non-parametric curve fitting. Fit a non-linear model to the data
+    Fits a smooth curve between an outcoume an a predictor variable.
+
+    Estimates/Fits a regression function (or their derivatives) via local polynomials.
 
     A local polynomial fit requires a weighted least-squares regression
     at every point g = 1,..., M in the grid.
@@ -96,17 +102,25 @@ def locpoly(
     Raises:
         Exception: If input arrays x and y must be sorted by x before estimation!
 
+    Hjaja js :cite:`Wand1995`.
+
     """
     # The input arrays x (predictor) and y (response variable)
     # must be sorted by x.
     if is_sorted_jitted(x) is False:
         raise Exception("Input arrays x and y must be sorted by x before estimation!")
 
+    if degree is None:
+        degree = derivative + 1
+
     if a is None:
         a = min(x)
 
     if b is None:
         b = max(x)
+
+    if bandwidth is None:
+        bandwidth = minimize_rsc(x, y, degree, [a, b])
 
     # tau is chosen so that the interval [-tau, tau] is the
     # "effective support" of the Gaussian kernel,
@@ -152,7 +166,7 @@ def get_curve_estimator(
     derivative: int,
     grid: int,
 ) -> np.ndarray:
-    """Solve the locally weighted least-squares regression problem.
+    """Solves the locally weighted least-squares regression problem.
 
     Returns an estimator for the v-th derivative of beta.
 

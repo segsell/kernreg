@@ -1,33 +1,16 @@
 """Test cases for the linear_binning module."""
-from typing import Tuple
+from typing import Any, Callable, Tuple
 
 import numpy as np
 import pytest
-
 
 from kernreg.linear_binning import include_weights_from_endpoints, linear_binning
 
 
 @pytest.fixture
-def generate_test_input() -> Tuple[np.ndarray, np.ndarray]:
-    """Reusable parameterization for x and y inputs."""
-    x = np.linspace(2.2, 6.6, 1000)
-    y = np.linspace(10, 30, 1000)
-
-    return x, y
-
-
-def test_binning_truncate_True(
-    generate_test_input: Tuple[np.ndarray, np.ndarray]
-) -> None:
-    """Truncate endpoints."""
-    a, b, grid = 3, 6, 10
-    binwidth = (b - a) / (grid - 1)
-    x, y = generate_test_input
-
-    xcounts, ycounts = linear_binning(x, y, grid, a, binwidth, truncate=True)
-
-    expected_xcounts = np.array(
+def output_trunc_true() -> Tuple[np.ndarray, np.ndarray]:
+    """Expected toy output for linear_binning with default parameter truncate=True."""
+    xcounts = np.array(
         [
             38.06786787,
             75.68048048,
@@ -41,7 +24,8 @@ def test_binning_truncate_True(
             188.47687688,
         ]
     )
-    expected_ycounts = np.array(
+
+    ycounts = np.array(
         [
             613.97600002,
             1146.67162057,
@@ -56,21 +40,13 @@ def test_binning_truncate_True(
         ]
     )
 
-    np.testing.assert_almost_equal(xcounts, expected_xcounts, decimal=8)
-    np.testing.assert_almost_equal(ycounts, expected_ycounts, decimal=8)
+    return xcounts, ycounts
 
 
-def test_binning_truncate_False(
-    generate_test_input: Tuple[np.ndarray, np.ndarray]
-) -> None:
-    """Do not truncate endpoints."""
-    a, b, grid = 3, 7, 10
-    binwidth = (b - a) / (grid - 1)
-    x, y = generate_test_input
-
-    xcounts, ycounts = linear_binning(x, y, grid, a, binwidth, truncate=False)
-
-    expected_xcounts = np.array(
+@pytest.fixture
+def output_trunc_false() -> Tuple[np.ndarray, np.ndarray]:
+    """Expected toy output for linear_binning with truncate=False."""
+    xcounts = np.array(
         [
             250.21711712,
             100.90900901,
@@ -84,7 +60,7 @@ def test_binning_truncate_False(
             164.92882883,
         ]
     )
-    expected_ycounts = np.array(
+    ycounts = np.array(
         [
             3181.46857668,
             1579.88869049,
@@ -98,17 +74,38 @@ def test_binning_truncate_False(
             1858.50058166,
         ]
     )
+    return xcounts, ycounts
+
+
+@pytest.mark.parametrize(
+    "b, truncate, expected",
+    [(6, True, "output_trunc_true"), (7, False, "output_trunc_false")],
+)
+def test_binning_truncate_True_False(
+    b: float,
+    truncate: bool,
+    expected: Callable,
+    request: Any,
+) -> None:
+    """It bins x and y. With and without truncation of end points."""
+    a, grid = 3, 10
+    binwidth = (b - a) / (grid - 1)
+    x = np.linspace(2.2, 6.6, 1000)
+    y = np.linspace(10, 30, 1000)
+
+    xcounts, ycounts = linear_binning(x, y, grid, a, binwidth, truncate=truncate)
+
+    expected_xcounts, expected_ycounts = request.getfixturevalue(expected)
 
     np.testing.assert_almost_equal(xcounts, expected_xcounts, decimal=8)
     np.testing.assert_almost_equal(ycounts, expected_ycounts, decimal=8)
 
 
 def test_include_endpoints() -> None:
-    """Calls inner function directly."""
+    """Calls inner function directly, which is otherwise reached if truncate=False."""
     grid = 10
     y = np.linspace(10, 30, 100)
 
-    # xgrid = np.linspace(-2.6, 1.72, 100)
     xgrid = np.linspace(-2.6, 12, 100)
     xcounts = np.array([2.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 13.0])
     ycounts = np.array(
