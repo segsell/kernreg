@@ -32,7 +32,7 @@ def locpoly(
     x: np.ndarray,
     y: np.ndarray,
     derivative: int,
-    degree: int,
+    degree: Optional[int] = None,
     grid: int = 401,
     bandwidth: Optional[float] = None,
     a: Optional[float] = None,
@@ -97,11 +97,16 @@ def locpoly(
     Raises:
         Exception: If input arrays x and y must be sorted by x before estimation!
 
+    # :cite:`Wand1995`
+
     """
     # The input arrays x (predictor) and y (response variable)
     # must be sorted by x.
     if is_sorted_jitted(x) is False:
         raise Exception("Input arrays x and y must be sorted by x before estimation!")
+
+    if degree is None:
+        degree = derivative + 1
 
     if a is None:
         a = min(x)
