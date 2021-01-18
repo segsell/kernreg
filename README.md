@@ -11,3 +11,9 @@ Private repository for the kernreg package. I'm currently following the hypermod
 <p align="center">
   <img width="650" height="374" src="https://github.com/segsell/hypermodern-kernreg/blob/develop/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
 </p>
+`*`
+
+
+-----
+`*` The image is taken from futurist illustrator [Arthur Radebaugh's (1906–1974)](http://www.gavinrothery.com/my-blog/2012/7/15/arthur-radebaugh.html)
+Sunday comic strip *Closer Than We Think!* for the Chicago Tribune - New York News Syndicate.
