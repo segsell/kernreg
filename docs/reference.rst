@@ -18,3 +18,10 @@ kernreg.residual_squares_criterion
 
 .. automodule:: kernreg.residual_squares_criterion
    :members: minimize_rsc
+
+
+
+**References:**
+
+.. bibliography:: refs.bib
+      :filter: docname in docnames

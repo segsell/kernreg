@@ -1,4 +1,4 @@
-"""Interface for the local polynomial kernel regression."""
+"""Estimate Functions Using Local Polynomials."""
 import math
 from typing import Optional
 
@@ -40,7 +40,12 @@ def locpoly(
     binned: bool = False,
     truncate: bool = True,
 ) -> np.ndarray:
-    """Fit a regression function (or their derivatives) via local polynomials.
+    """Estimates a regression function or their derivatives using local polynomials.
+
+    Non-linear/Non-parametric curve fitting. Fit a non-linear model to the data
+    Fits a smooth curve between an outcoume an a predictor variable.
+
+    Estimates/Fits a regression function (or their derivatives) via local polynomials.
 
     A local polynomial fit requires a weighted least-squares regression
     at every point g = 1,..., M in the grid.
@@ -97,7 +102,7 @@ def locpoly(
     Raises:
         Exception: If input arrays x and y must be sorted by x before estimation!
 
-    # :cite:`Wand1995`
+    Hjaja js :cite:`Wand1995`.
 
     """
     # The input arrays x (predictor) and y (response variable)
@@ -161,7 +166,7 @@ def get_curve_estimator(
     derivative: int,
     grid: int,
 ) -> np.ndarray:
-    """Solve the locally weighted least-squares regression problem.
+    """Solves the locally weighted least-squares regression problem.
 
     Returns an estimator for the v-th derivative of beta.
 
