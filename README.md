@@ -8,4 +8,3 @@ Private repository for the kernreg package. I'm currently following the hypermod
 
 
 .. image:: docs/images/Arthur_Radebaugh_retrofuturism.jpg
-   # :width: 40pt
