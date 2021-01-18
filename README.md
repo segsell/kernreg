@@ -7,4 +7,4 @@
 Private repository for the kernreg package. I'm currently following the hypermodern-python blog series to set up this repository.
 
 
-.. image:: docs/images/Arthur_Radebaugh_retrofuturism.jpg
+![Image](https://github.com/segsell/hypermodern-kernreg/blob/develop/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true)
