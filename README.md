@@ -9,5 +9,5 @@ Private repository for the kernreg package. I'm currently following the hypermod
 
 
 <p align="center">
-  <img width="650" height="507" src="https://github.com/segsell/hypermodern-kernreg/blob/develop/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
+  <img width="650" height="374" src="https://github.com/segsell/hypermodern-kernreg/blob/develop/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
 </p>
