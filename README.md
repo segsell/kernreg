@@ -4,7 +4,7 @@
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # KernReg
-**KernReg** provides a pure-Python routine for local polynomial kernel regression based on [Wand & Jones (1995)](http://matt-wand.utsacademics.info/webWJbook/) and their accompanying *R* package [KernSmooth](https://www.rdocumentation.org/packages/KernSmooth/versions/2.23-18). In addition, **KernReg** provides an automatic bandwidth selection procedure that minimizes the residual squares criterion proposed by [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725).
+**KernReg** provides a pure-Python routine for local polynomial kernel regression based on [Wand & Jones (1995)](http://matt-wand.utsacademics.info/webWJbook/) and their accompanying *R* package [KernSmooth](https://www.rdocumentation.org/packages/KernSmooth/versions/2.23-18). In addition, **KernReg** comes with an automatic bandwidth selection procedure that minimizes the residual squares criterion proposed by [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725).
 
 **KernReg** allows for the estimation of a regression function as well as their derivatives. The degree of the polynomial may be chosen ad libitum, but ```degree = derivative + 1``` is commonly recommended and thus set by default.
 
@@ -13,7 +13,7 @@
 </p>
 
 # Background
-Local polynomial fitting provides a simple way of finding a functional relationship between two variables (usually denoted by X, the predictor, and Y, the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by [Nadaraya (1964)](https://www.semanticscholar.org/paper/On-Estimating-Regression-Nadaraya/05175204318c3c01e3301fd864553071039605d2#paper-header) and [Watson (1964)](http://www.jstor.org/stable/25049340). Instead of fitting a local mean, local polynomial smooting involves fitting a local pth-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent with fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
+Local polynomial fitting provides a simple way of finding a functional relationship between two variables (where X typically denotes the predictor, and Y the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by [Nadaraya (1964)](https://www.semanticscholar.org/paper/On-Estimating-Regression-Nadaraya/05175204318c3c01e3301fd864553071039605d2#paper-header) and [Watson (1964)](http://www.jstor.org/stable/25049340). Instead of fitting a local mean, local polynomial smooting involves fitting a local *p*th-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent to fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
 
 <!-- For a definitive reference on local polynomial smoothing, see [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). -->
 
