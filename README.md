@@ -4,11 +4,18 @@
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 # KernReg
-**KernReg** provides a pure-Python routine for local polynomial kernel regression based on Wand & Jones (1995) and their accompanying R package [KernSmooth](https://www.rdocumentation.org/packages/KernSmooth/versions/2.23-18). In addition, **KernReg** provides an automatic bandwidth selection procedure that minimizes the residual squares criterion proposed by Fan & Gijbels (1996).
-**KernReg** allows for the estimation of a regression function as well as their derivatives. The degree of the polynomial may be chosen ad libitum, but ```degree = derivative + 1``` is commonly recommended (see e.g. Fan & Gijbels, 1996) and thus set by default.
+**KernReg** provides a pure-Python routine for local polynomial kernel regression based on [Wand & Jones (1995)](http://matt-wand.utsacademics.info/webWJbook/) and their accompanying *R* package [KernSmooth](https://www.rdocumentation.org/packages/KernSmooth/versions/2.23-18). In addition, **KernReg** provides an automatic bandwidth selection procedure that minimizes the residual squares criterion proposed by [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725).
+
+**KernReg** allows for the estimation of a regression function as well as their derivatives. The degree of the polynomial may be chosen ad libitum, but ```degree = derivative + 1``` is commonly recommended and thus set by default.
 
 # Background
-Local polynomial fitting provides a simple way of finding a functional relationship between two variables (usually denoted by X, the predictor, and Y, the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by Nadaraya (1964) and Watson (1964). Instead of fitting a local mean, local polynomial smooting involves fitting a local pth-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent with fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space. For a definitive reference on local polynomial smoothing, see Fan & Gijbels (1996).
+Local polynomial fitting provides a simple way of finding a functional relationship between two variables (usually denoted by X, the predictor, and Y, the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by Nadaraya (1964) and Watson (1964). Instead of fitting a local mean, local polynomial smooting involves fitting a local pth-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent with fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
+
+<!-- For a definitive reference on local polynomial smoothing, see [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). -->
+
+<p align="center">
+  <img width="650" height="450" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
+</p>
 
 <!-- (?The kernel weigth is the normal density, i.e. Gaussian kernel.)
 
@@ -37,10 +44,6 @@ The apparent cost of these improved properties is that local polynomial smooths 
 * Implements residual squares criterion for
 Direct computation computationally expensive -->
 
-<p align="center">
-  <img width="650" height="450" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
-</p>
-
 # References
 Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability 66*. Chapman & Hall.
 
@@ -48,7 +51,7 @@ Nadaraya, E. A. (1964). [On Estimating Regression](https://www.semanticscholar.o
 
 Wand, M.P. & Jones, M.C. (1995). [Kernel Smoothing](http://matt-wand.utsacademics.info/webWJbook/). *Monographs on Statistics and Applied Probability 60*. Chapman & Hall.
 
-Wand, M.P. and Ripley, B. D. (2015). KernSmooth:  Functions for Kernel Smoothing for Wand and Jones (1995). **R** package version 2.23-18. http://CRAN.R-project.org/package=KernSmooth
+Wand, M.P. and Ripley, B. D. (2015). [KernSmooth:  Functions for Kernel Smoothing for Wand and Jones (1995)](http://CRAN.R-project.org/package=KernSmooth). **R** package version 2.23-18.
 
 Watson, G. S. (1964). [Smooth Regression Analysis](http://www.jstor.org/stable/25049340). *Sankhyā: The Indian Journal of Statistics, Series A*, 26(4): 359–372.
 
