@@ -8,17 +8,17 @@
 
 **KernReg** allows for the estimation of a regression function as well as their derivatives. The degree of the polynomial may be chosen ad libitum, but ```degree = derivative + 1``` is commonly recommended and thus set by default.
 
+<p align="center">
+  <img width="650" height="450" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
+</p>
+
 # Background
 Local polynomial fitting provides a simple way of finding a functional relationship between two variables (usually denoted by X, the predictor, and Y, the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by Nadaraya (1964) and Watson (1964). Instead of fitting a local mean, local polynomial smooting involves fitting a local pth-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent with fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
 
 <!-- For a definitive reference on local polynomial smoothing, see [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). -->
 
-<p align="center">
-  <img width="650" height="450" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
-</p>
 
 <!-- (?The kernel weigth is the normal density, i.e. Gaussian kernel.)
-
 
 Kernel smoothing refers to a general class of techniques for non- parametric estimation of functions. Suppose that you have a uni- variate set of data which you want to display graphically. Then kernel smoothing provides an attractive procedure for achieving this goal, known as kernel density estimation. Another funda- mental example is the simple nonparametric regression or scat- terplot smoothing problem where kernel smoothing offers a way of estimating the regression function without the specification of a parametric model.
 
