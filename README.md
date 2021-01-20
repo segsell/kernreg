@@ -13,7 +13,7 @@
 </p>
 
 # Background
-Local polynomial fitting provides a simple way of finding a functional relationship between two variables (usually denoted by X, the predictor, and Y, the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by Nadaraya (1964) and Watson (1964). Instead of fitting a local mean, local polynomial smooting involves fitting a local pth-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent with fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
+Local polynomial fitting provides a simple way of finding a functional relationship between two variables (usually denoted by X, the predictor, and Y, the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by [Nadaraya (1964)](https://www.semanticscholar.org/paper/On-Estimating-Regression-Nadaraya/05175204318c3c01e3301fd864553071039605d2#paper-header) and [Watson (1964)](http://www.jstor.org/stable/25049340). Instead of fitting a local mean, local polynomial smooting involves fitting a local pth-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent with fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
 
 <!-- For a definitive reference on local polynomial smoothing, see [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). -->
 
@@ -51,7 +51,7 @@ Nadaraya, E. A. (1964). [On Estimating Regression](https://www.semanticscholar.o
 
 Wand, M.P. & Jones, M.C. (1995). [Kernel Smoothing](http://matt-wand.utsacademics.info/webWJbook/). *Monographs on Statistics and Applied Probability 60*. Chapman & Hall.
 
-Wand, M.P. and Ripley, B. D. (2015). [KernSmooth:  Functions for Kernel Smoothing for Wand and Jones (1995)](http://CRAN.R-project.org/package=KernSmooth). **R** package version 2.23-18.
+Wand, M.P. and Ripley, B. D. (2015). [KernSmooth:  Functions for Kernel Smoothing for Wand and Jones (1995)](http://CRAN.R-project.org/package=KernSmooth). *R* package version 2.23-18.
 
 Watson, G. S. (1964). [Smooth Regression Analysis](http://www.jstor.org/stable/25049340). *Sankhyā: The Indian Journal of Statistics, Series A*, 26(4): 359–372.
 
