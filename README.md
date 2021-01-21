@@ -45,15 +45,15 @@ The apparent cost of these improved properties is that local polynomial smooths 
 Direct computation computationally expensive -->
 
 # References
-Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability 66*. Chapman & Hall.
+Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability, 66*. Chapman & Hall.
 
-Nadaraya, E. A. (1964). [On Estimating Regression](https://www.semanticscholar.org/paper/On-Estimating-Regression-Nadaraya/05175204318c3c01e3301fd864553071039605d2#paper-header). *Theory of Probability and Its Application*, 9(1): 141–142.
+<!-- Nadaraya, E. A. (1964). [On Estimating Regression](https://www.semanticscholar.org/paper/On-Estimating-Regression-Nadaraya/05175204318c3c01e3301fd864553071039605d2#paper-header). *Theory of Probability and Its Application*, 9(1): 141–142. -->
 
-Wand, M.P. & Jones, M.C. (1995). [Kernel Smoothing](http://matt-wand.utsacademics.info/webWJbook/). *Monographs on Statistics and Applied Probability 60*. Chapman & Hall.
+Wand, M.P. & Jones, M.C. (1995). [Kernel Smoothing](http://matt-wand.utsacademics.info/webWJbook/). *Monographs on Statistics and Applied Probability, 60*. Chapman & Hall.
 
 Wand, M.P. and Ripley, B. D. (2015). [KernSmooth:  Functions for Kernel Smoothing for Wand and Jones (1995)](http://CRAN.R-project.org/package=KernSmooth). *R* package version 2.23-18.
 
-Watson, G. S. (1964). [Smooth Regression Analysis](http://www.jstor.org/stable/25049340). *Sankhyā: The Indian Journal of Statistics, Series A*, 26(4): 359–372.
+<!-- Watson, G. S. (1964). [Smooth Regression Analysis](http://www.jstor.org/stable/25049340). *Sankhyā: The Indian Journal of Statistics, Series A*, 26(4): 359–372. -->
 
 -----
 `*` The image is taken from futurist illustrator [Arthur Radebaugh's (1906–1974)](http://www.gavinrothery.com/my-blog/2012/7/15/arthur-radebaugh.html)

@@ -149,7 +149,15 @@ def test_input_arr_not_sorted_ascend(arr: Callable, request: Any) -> None:
 
     with pytest.raises(Exception) as error:
         assert locpoly(
-            x, y, derivative=0, degree=1, grid=11, bandwidth=2, a=0, b=2, truncate=False
+            x,
+            y,
+            derivative=0,
+            degree=1,
+            gridsize=11,
+            bandwidth=2,
+            a=0,
+            b=2,
+            truncate=False,
         )
     assert str(error.value) == msg
 
@@ -179,8 +187,8 @@ def test_combine_weights_degree_zero(
     # if degree 0 and weightedx of the form [[1], [2], [3] ]
 
     bandwidth = 0.1
-    a, b, grid = 0, 1, 10
-    binwidth = (b - a) / (grid - 1)
+    a, b, gridsize = 0, 1, 10
+    binwidth = (b - a) / (gridsize - 1)
 
     xcounts = np.asarray(9 * [6] + [count])
     ycounts = np.asarray(10 * [10])
@@ -189,7 +197,7 @@ def test_combine_weights_degree_zero(
     weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
 
     weightedx, weightedy = combine_bincounts_kernelweights(
-        xcounts, ycounts, weights, degree, grid, bandwidth, binwidth
+        xcounts, ycounts, weights, degree, gridsize, bandwidth, binwidth
     )
 
     if degree == 0:
@@ -204,8 +212,8 @@ def test_combine_weights_degree_zero(
 def test_kernelweights() -> None:
     """Computes symmetric kernelweights for a small grid."""
     bandwidth = 0.1
-    a, b, grid = 0, 1, 10
-    binwidth = (b - a) / (grid - 1)  # Set the bin width = delta
+    a, b, gridsize = 0, 1, 10
+    binwidth = (b - a) / (gridsize - 1)  # Set the bin width = delta
     kernelweights = get_kernelweights(bandwidth, binwidth)
 
     symmetric_weights = [0.00386592, 0.08465799, 0.53940751]
@@ -234,7 +242,7 @@ def test_curve_estimation() -> None:
     )
 
     estimate = get_curve_estimator(
-        weigthedx, weigthedy, degree=0, derivative=0, grid=10
+        weigthedx, weigthedy, degree=0, derivative=0, gridsize=10
     )
 
     np.testing.assert_almost_equal(estimate, expected)
@@ -259,7 +267,7 @@ def test_integration(
         x,
         y,
         derivative=0,
-        grid=11,
+        gridsize=11,
         bandwidth=2,
         a=0,
         b=2,
@@ -286,6 +294,8 @@ def test_integration_motorcycle_data(
     time = np.asarray(motorcycle["time"])
     accel = np.asarray(motorcycle["accel"])
 
-    estimate = locpoly(x=time, y=accel, derivative=0, degree=1, grid=101, bandwidth=bw)
+    estimate = locpoly(
+        x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw
+    )
 
     np.testing.assert_almost_equal(estimate, expected)

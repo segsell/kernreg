@@ -13,51 +13,58 @@ include_weights_from_endpoints_jitted = njit(include_weights_from_endpoints)
 def linear_binning(
     x: np.ndarray,
     y: np.ndarray,
-    grid: int,
+    gridsize: int,
     a: float,
     binwidth: float,
     truncate: bool = True,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    """Apply linear binning to input variables x and y.
+    r"""Apply linear binning to x and y.
 
     Linear binning generates bin counts (x-dimension) and bin averages
-    (y-dmension) over an equally spaced grid.
+    (y-dimension) over an equally spaced grid.
     In essence, bin counts are obtained by assigning the raw data to
-    neighboring grid points. A bin count can be thought of as representing the
+    neighboring grid points. A bin count represents the
     amount of data in the neighborhood of its corresponding grid point.
     Counts on the y-axis display the respective bin averages.
 
     The linear binning strategy is based on the transformation
-    xgrid = ((x - a) / delta) + 1, which maps each x_i onto its corresponding
-    gridpoint. The integer part of xgrid_i indicates the two
-    nearest bin centers to x_i. Additionally, we compute the
-    "fractional part", i.e. binweights = xgrid - bincenters, which yields the weights
-    attached to the two nearest bin centers; namely (1 - binweights) for the bin
-    considered and binweights for the next bin.
+    ``xgrid[i] = ((x[i] - a) * delta) + 1``,
+    which maps each ``x[i]`` onto its corresponding gridpoint.
+    The integer part of ``xgrid[i]`` indicates the two nearest bin centers to ``x[i]``.
+    Additionally, the "fractional part"
+    or "bin weight" is computed, which contains the weight attached to the
+    two nearest bin centers:
 
-    If truncate is True, end observations are truncated.
+    ``binweights = xgrid - bincenters``.
+
+    The corresponding weights are ``1 - binweights`` for the bin to the left and
+    ``binweights`` for the bin to the right.
+
+    If ``truncate`` is True, end observations are trimmed.
     Otherwise, weight from end observations is given to corresponding
     end grid points.
+
 
     Arguments:
         x: Array of the predictor variable. Shape (N,). Missing values are not accepted.
             Must be sorted ascendingly.
         y: Array of the response variable. Shape (N,). Missing values are not accepted.
-            Must come pre-sorted by x.
-        grid: Number of equally-spaced grid points in the x-dimension.
-            Over this grid, the values of x and y are binned.
+            Must come pre-sorted by ``x``.
+        gridsize: Number of equally-spaced grid points in the ``x``-dimension.
+            Over this grid, ``x`` and ``y`` are binned.
         a: Start point of the grid.
-        binwidth: Width of each of the M bins.
-        truncate: If True, truncate endpoints.
+        binwidth: Bin width.
+        truncate: If True, trim endpoints.
 
     Returns:
-        xcounts: Array of binned x-values ("bin counts"). Of length M.
-        ycounts: Array of binned y-values ("bin averages"). Of length M.
+        xcounts: Array of binned x-values ("bin counts"). Of length ``gridsize``.
+        ycounts: Array of binned y-values ("bin averages"). Of length ``gridsize``.
+
     """
     N = len(x)
 
-    xcounts = np.zeros(grid)
-    ycounts = np.zeros(grid)
+    xcounts = np.zeros(gridsize)
+    ycounts = np.zeros(gridsize)
     xgrid = np.zeros(N)
     binweights = np.zeros(N)
     bincenters = [0] * N
@@ -70,7 +77,7 @@ def linear_binning(
         bincenters[i] = int(xgrid[i])
         binweights[i] = xgrid[i] - bincenters[i]
 
-    for point in range(grid):
+    for point in range(gridsize):
         for index, value in enumerate(bincenters):
             if value == point:
                 xcounts[point - 1] += 1 - binweights[index]
@@ -81,19 +88,7 @@ def linear_binning(
 
     if truncate is False:
         xcounts, ycounts = include_weights_from_endpoints_jitted(
-            xcounts, ycounts, y, xgrid, grid
+            xcounts, ycounts, y, xgrid, gridsize
         )
-
-    # By default, end observations are truncated.
-    # elif truncate is True or (1 <= bincenters[0] and bincenters[N - 1] < grid):
-    #     pass
-
-    # Truncation is implicit if there are no points in bincenters
-    # beyond the grid's boundary points.
-    # Note that bincenters is sorted. So it is sufficient to check if
-    # the conditions below hold for the bottom and top
-    # observation, respectively
-    # elif 1 <= bincenters[0] and bincenters[N - 1] < grid:
-    #     pass
 
     return xcounts, ycounts

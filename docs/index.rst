@@ -1,11 +1,11 @@
-Kernreg
+KernReg
 =======
 
 .. toctree::
     :hidden:
     :maxdepth: 1
 
-    reference
+    api_reference
     license
 
 

@@ -10,15 +10,21 @@ kernreg.locpoly
 ---------------
 
 .. automodule:: kernreg.locpoly
-   :members: locpoly
+   :members:
 
 
-kernreg.residual_squares_criterion
+kernreg.bandwidth_selection
 ----------------------------------
 
-.. automodule:: kernreg.residual_squares_criterion
-   :members: minimize_rsc
+.. automodule:: kernreg.bandwidth_selection
+   :members:
 
+
+kernreg.linear_binning
+----------------------
+
+.. automodule:: kernreg.linear_binning
+   :members: linear_binning
 
 
 **References:**

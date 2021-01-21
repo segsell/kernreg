@@ -6,13 +6,13 @@ from numba import njit
 import numpy as np
 
 
+from kernreg.bandwidth_selection import get_bandwidth_rsc
 from kernreg.funcs_to_jit import (
     combine_bincounts_kernelweights,
     get_kernelweights,
     is_sorted,
 )
 from kernreg.linear_binning import linear_binning
-from kernreg.residual_squares_criterion import minimize_rsc
 
 # Jit the functions
 # Implemented as additional step since pytest-cov does not consider
@@ -33,51 +33,43 @@ def locpoly(
     y: np.ndarray,
     derivative: int,
     degree: Optional[int] = None,
-    grid: int = 401,
+    gridsize: int = 401,
     bandwidth: Optional[float] = None,
     a: Optional[float] = None,
     b: Optional[float] = None,
     binned: bool = False,
     truncate: bool = True,
 ) -> np.ndarray:
-    """Estimates a regression function or their derivatives using local polynomials.
+    r"""Estimates a regression function or their derivatives using local polynomials.
 
-    Non-linear/Non-parametric curve fitting. Fit a non-linear model to the data
-    Fits a smooth curve between an outcoume an a predictor variable.
+    Non-parametrically fits a smooth curve between a predictor, ``x``,
+    and a response variable, ``y``. A binned approximation to ``x`` and ``y``
+    over an equally-spaced grid is used for fast computation.
 
-    Estimates/Fits a regression function (or their derivatives) via local polynomials.
+    Note that for a `v`-th derivative the order of the polynomial
+    should be :math:`p = v + 1`.
 
-    A local polynomial fit requires a weighted least-squares regression
-    at every point g = 1,..., M in the grid.
-    The Gaussian density function is used as the kernel weight.
+    The local polynomial curve estimator ``beta`` and its derivatives are
+    minimizers to the locally weighted least-squares problem.
+    In particular, at each point :math:`g = 1,..., M` in the grid,
+    ``beta`` is computed as the solution to the linear matrix equation:
 
-    We recommend that for a v-th derivative the order of the polynomial
-    be p = v + 1.
+    .. math::
 
-    The local polynomial curve estimator beta and its derivatives are
-    minimizers to the locally weighted least-squares problem. At each grid
-    point, beta is computed as the solution to the linear matrix equation:
+        X'W X \ \beta = X'W y,
 
-    X'W X * beta = X'W y,
-
-    where W are kernel weights approximated by the Gaussian density function.
-    X'W X and X'W y are approximated by weigthedx and weigthedy,
-    which are the result of a direct convolution of bin counts (xcounts) and kernel
-    weights, and bin averages (ycounts) and kernel weights, respectively.
-
-    A binned approximation over an equally-spaced grid is used for fast
-    computation. Fan and Marron (1994) recommend a defau of M = 400
-    for the popular case of graphical analysis. They find that fewer than 400
-    grid points results in distracting "granularity", while more grid points
-    often give negligible improvements in resolution. Instead of a scalar
-    bandwidth, local bandwidths of length gridsize may be chosen.
+    where :math:`W` are kernel weights approximated by the Gaussian density function.
+    :math:`X'W X` and :math:`X'W y` use binned approximations to ``X`` and ``y``,
+    respectively; see :func:`~kernreg.linear_binning.linear_binning`.
 
     The terms "kernel" and "kernel function" are used interchangeably
-    throughout and denoted by K.
+    throughout.
 
-    This function builds on the R function "locpoly" from the "KernSmooth"
-    package maintained by Brian Ripley and the original Fortran routines
-    provided by M.P. Wand.
+    :cite:`Fan1994` recommend a default of ``gridsize`` = 400
+    for the popular case of graphical analysis. They find that using fewer than 400
+    grid points produces distracting "granularity", while more grid points
+    often give negligible improvements in resolution.
+
 
     Arguments:
         x: Array of x data. Missing values are not accepted. Must be sorted.
@@ -85,24 +77,23 @@ def locpoly(
             not accepted. Must be presorted by x.
         derivative: Order of the derivative to be estimated.
         degree: Degree of local polynomial used. Its value must be greater than or
-            equal to the value of drv. Generally, users should choose a degree of
-            size drv + 1.
+            equal to the value of ``derivative``.
+            The recommended degree is ``derivative`` + 1.
         bandwidth: Kernel bandwidth smoothing parameter.
-        grid: Number of equally-spaced grid points over which the
+        gridsize: Number of equally-spaced grid points over which the
             function is to be estimated.
         a: Start point of the grid.
         b: End point of the grid.
-        binned: If True, then x and y are taken to be bin counts rather than raw data
-            and the binning step is skipped.
-        truncate: If True, then endpoints are truncated.
+        binned: If True, then ``x`` and ``y`` are taken to be bin counts
+            rather than raw data and the binning step is skipped.
+        truncate: If True, trim endpoints.
 
     Returns:
-        np.ndarray: Array of M local estimators.
+        curvest: Curve estimate for the specified derivative of ``beta``.
 
     Raises:
-        Exception: If input arrays x and y must be sorted by x before estimation!
-
-    Hjaja js :cite:`Wand1995`.
+        Exception: Input arrays ``x`` and ``y`` must be sorted by ``x``
+            before estimation.
 
     """
     # The input arrays x (predictor) and y (response variable)
@@ -120,7 +111,7 @@ def locpoly(
         b = max(x)
 
     if bandwidth is None:
-        bandwidth = minimize_rsc(x, y, degree, [a, b])
+        bandwidth = get_bandwidth_rsc(x, y, degree, [a, b])
 
     # tau is chosen so that the interval [-tau, tau] is the
     # "effective support" of the Gaussian kernel,
@@ -130,11 +121,11 @@ def locpoly(
     # tau = 4
 
     # Set the bin width
-    binwidth = (b - a) / (grid - 1)
+    binwidth = (b - a) / (gridsize - 1)
 
     # 1. Bin the data if not already binned
     if binned is False:
-        xcounts, ycounts = linear_binning_jitted(x, y, grid, a, binwidth, truncate)
+        xcounts, ycounts = linear_binning_jitted(x, y, gridsize, a, binwidth, truncate)
     else:
         xcounts, ycounts = x, y
 
@@ -146,71 +137,67 @@ def locpoly(
 
     # 3. Combine bin counts and kernel weights
     # combine_bincounts_weights_jitted = njit(combine_bincounts_weights)
-    weightedx, weigthedy = combine_bincounts_weights_jitted(
-        xcounts, ycounts, weights, degree, grid, bandwidth, binwidth
+    x_weighted, y_weighted = combine_bincounts_weights_jitted(
+        xcounts, ycounts, weights, degree, gridsize, bandwidth, binwidth
     )
 
     # 4. Fit the curve and obtain estimator for the desired derivative
-    curvest = get_curve_estimator(weightedx, weigthedy, degree, derivative, grid)
+    curvest = get_curve_estimator(x_weighted, y_weighted, degree, derivative, gridsize)
 
     # Generate grid points for visual representation
-    # gridpoints = np.linspace(a, b, grid)
+    # gridpoints = np.linspace(a, b, gridsize)
 
     return curvest
 
 
 def get_curve_estimator(
-    weigthedx: np.ndarray,
-    weigthedy: np.ndarray,
+    x_weighted: np.ndarray,
+    y_weighted: np.ndarray,
     degree: int,
     derivative: int,
-    grid: int,
+    gridsize: int,
 ) -> np.ndarray:
-    """Solves the locally weighted least-squares regression problem.
+    r"""Solves the locally weighted least-squares regression problem.
 
-    Returns an estimator for the v-th derivative of beta.
+    Returns an estimator for the `v`-th derivative of ``beta`` .
 
-    Before doing so, the function first turns each row in weightedx into
-    an array of size (coly, coly) and each row in weigthedy into
-    an array of size (coly,), called xmat and yvec, respectively.
-
-    The local polynomial curve estimator beta and its derivatives are
+    The local polynomial curve estimator ``beta`` and its derivatives are
     minimizers to a locally weighted least-squares problem. At each grid
-    point, beta is computed as the solution to the linear matrix equation:
+    point, ``beta`` is computed as the solution to the linear matrix equation:
 
-    X'W X * beta = X'W y,
+    .. math::
+
+        X'W X \ \beta = X'W y,
 
     where W are kernel weights approximated by the Gaussian density function.
-    X'W X and X'W y are approximated by weigthedx and weigthedy,
-    which are the result of a direct convolution of bin counts (xcounts) and
-    kernel weights, and bin averages (ycounts) and kernel weights, respectively.
-
-    Note that for a v-th derivative the order of the polynomial
-    should be p = v + 1.
+    :math:`X'W X`and :math:`X'W y`are approximated by ``x_weighted`` and ``y_weighted``,
+    which are the result of a direct convolution of
+    bin counts (``xcounts``) and kernel weights, as well as
+    bin averages (``ycounts``) and kernel weights, respectively.
 
     Arguments:
-        weigthedx: Binned approximation to X'W X.
-        weigthedy: Binned approximation to X'W y.
+        x_weighted: Binned approximation to :math:`X'W X`.
+        y_weighted: Binned approximation to :math:`X'W y`.
         degree: Degree of the polynomial.
         derivative: Order of the derivative to be estimated.
-        grid: Number of equally-spaced grid points.
+        gridsize: Number of equally-spaced grid points.
 
     Returns:
-        curvest: Estimator for the specified derivative of beta.
+        curvest: Curve estimate for the specified derivative of ``beta``.
 
     """
     coly = degree + 1
     xmat = np.zeros((coly, coly))
     yvec = np.zeros(coly)
-    curvest = np.zeros(grid)
+    curvest = np.zeros(gridsize)
 
-    for g in range(grid):
+    for g in range(gridsize):
         for row in range(0, coly):
             for column in range(0, coly):
                 colindex = row + column
-                xmat[row, column] = weigthedx[g, colindex]
+                xmat[row, column] = x_weighted[g, colindex]
 
-                yvec[row] = weigthedy[g, row]
+                yvec[row] = y_weighted[g, row]
 
         # Calculate beta as the solution to the linear matrix equation
         # X'W X * beta = X'W y.
