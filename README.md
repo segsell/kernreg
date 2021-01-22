@@ -1,3 +1,4 @@
+[![PyPI](https://img.shields.io/pypi/v/kernreg.svg)](https://pypi.org/project/kernreg/)
 [![Continuous Integration](https://github.com/segsell/kernreg/workflows/Continuous%20Integration/badge.svg?branch=main)](https://github.com/segsell/kernreg/actions?query=workflow%3A%22Continuous+Integration%22)
 [![Codecov](https://codecov.io/gh/segsell/kernreg/branch/main/graph/badge.svg)](https://codecov.io/gh/segsell/kernreg)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5dd752959ec8415c8fa9cc9c18ac7d9a)](https://www.codacy.com/gh/segsell/kernreg/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=segsell/kernreg&amp;utm_campaign=Badge_Grade)
