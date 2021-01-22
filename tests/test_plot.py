@@ -6,16 +6,16 @@ import numpy as np
 import pandas as pd
 
 from kernreg.locpoly import Result
-import kernreg.plot as plot_module
+import kernreg.visualization as plot_module
 
 
-@mock.patch("%s.plot_module.plt" % __name__)
+@mock.patch(f"{__name__}.plot_module.plt")
 def test_plot(mock_plt: Any) -> None:
-    """Plot and compare data."""
+    """Uses mock object to call plot() function."""
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
     x, y = motorcycle["time"], motorcycle["accel"]
 
-    gridpoints = np.linspace(min(x), min(y), 101)
+    gridpoints = np.linspace(min(x), max(x), 101)
     curvest = np.genfromtxt("tests/resources/motorcycle_expected_user_bw.csv")
     bandwidth = 3.3
     rslt = Result(gridpoints=gridpoints, curvest=curvest, bandwidth=bandwidth)
