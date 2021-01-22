@@ -36,6 +36,46 @@ def is_sorted(a: np.ndarray) -> bool:
     return True
 
 
+def get_kernelweights(bandwidth: float, delta: float) -> np.ndarray:
+    """Compute approximated weights for the Gaussian kernel.
+
+    Arguments:
+        bandwidth: Bandwidth.
+        delta: Bin width.
+
+    Returns:
+        weights: Kernel weights.
+
+    """
+    # tau is chosen so that the interval [-tau, tau] is the
+    # "effective support" of the Gaussian kernel,
+    # i.e. K is effectively zero outside of [-tau, tau].
+    # According to Wand (1994) and Wand & Jones (1995), tau = 4 is a
+    # reasonable choice for the Gaussian kernel.
+    tau = 4
+
+    # Note that L < N, where N is the total number of observations.
+    L = math.floor(tau * bandwidth / delta)
+    length = 2 * L + 1
+
+    weights = np.zeros(length)
+
+    # Determine midpoint of weights
+    mid = L + 1
+
+    # Compute the kernel weights
+    for j in range(L + 1):
+
+        # Note that the mid point (weights[mid - 1]) receives a weight of 1.
+        weights[mid - 1 + j] = math.exp(-((delta * j / bandwidth) ** 2) / 2)
+
+        # Because of the kernel's symmetry, weights in equidistance
+        # below and above the midpoint are identical.
+        weights[mid - 1 - j] = weights[mid - 1 + j]
+
+    return weights
+
+
 def combine_bincounts_kernelweights(
     xcounts: np.ndarray,
     ycounts: np.ndarray,
@@ -97,38 +137,3 @@ def combine_bincounts_kernelweights(
                             )
 
     return x_weighted, y_weighted
-
-
-def get_kernelweights(bandwidth: float, delta: float) -> np.ndarray:
-    """Compute approximated weights for the Gaussian kernel.
-
-    Arguments:
-        bandwidth: Bandwidth.
-        delta: Bin width.
-
-    Returns:
-        weights: Kernel weights.
-
-    """
-    tau = 4
-
-    # Note that L < N, where N is the total number of observations.
-    L = math.floor(tau * bandwidth / delta)
-    length = 2 * L + 1
-
-    weights = np.zeros(length)
-
-    # Determine midpoint of weights
-    mid = L + 1
-
-    # Compute the kernel weights
-    for j in range(L + 1):
-
-        # Note that the mid point (weights[mid - 1]) receives a weight of 1.
-        weights[mid - 1 + j] = math.exp(-((delta * j / bandwidth) ** 2) / 2)
-
-        # Because of the kernel's symmetry, weights in equidistance
-        # below and above the midpoint are identical.
-        weights[mid - 1 - j] = weights[mid - 1 + j]
-
-    return weights

@@ -1,10 +1,11 @@
 """Estimate Functions Using Local Polynomials."""
 import math
-from typing import Optional
+from typing import Optional, Union
 
+from mypy_extensions import TypedDict  # Python>=3.8: from typing import TypedDict
 from numba import njit
 import numpy as np
-
+import pandas as pd
 
 from kernreg.bandwidth_selection import get_bandwidth_rsc
 from kernreg.funcs_to_jit import (
@@ -14,23 +15,28 @@ from kernreg.funcs_to_jit import (
 )
 from kernreg.linear_binning import linear_binning
 
+
 # Jit the functions
 # Implemented as additional step since pytest-cov does not consider
-# jitted functions when determining code coverage
-# (however, looks like there will be a fix soon).
+# jitted functions when determining code coverage.
 # The respective un-jitted functions are hence unit-tested in tests/test_locpoly.py
 linear_binning_jitted = njit(linear_binning)
 is_sorted_jitted = njit(is_sorted)
 get_weights_jitted = njit(get_kernelweights)
 combine_bincounts_weights_jitted = njit(combine_bincounts_kernelweights)
 
-# gridpoints: Array of sorted x values, i.e. grid points, at which the estimate
-# of E[Y|X] (or its derivative) is computed.
+
+class Result(TypedDict):
+    """Result dict for func ``locpoly``."""
+
+    gridpoints: np.ndarray
+    curvest: np.ndarray
+    bandwidth: float
 
 
 def locpoly(
-    x: np.ndarray,
-    y: np.ndarray,
+    x: Union[np.ndarray, pd.Series],
+    y: Union[np.ndarray, pd.Series],
     derivative: int,
     degree: Optional[int] = None,
     gridsize: int = 401,
@@ -39,7 +45,7 @@ def locpoly(
     b: Optional[float] = None,
     binned: bool = False,
     truncate: bool = True,
-) -> np.ndarray:
+) -> Result:
     r"""Estimates a regression function or their derivatives using local polynomials.
 
     Non-parametrically fits a smooth curve between a predictor, ``x``,
@@ -70,6 +76,10 @@ def locpoly(
     grid points produces distracting "granularity", while more grid points
     often give negligible improvements in resolution.
 
+    The user may pre-specifiy a bandwidth smoothing parameter.
+    If not, the bandwidth is auto-selected. ``locpoly`` uses the bandwidth
+    that minimzes the Residual Squares Criterion (RSC), see
+    :func:`~kernreg.bandwidth_selection.get_bandwidth_rsc`.
 
     Arguments:
         x: Array of x data. Missing values are not accepted. Must be sorted.
@@ -79,7 +89,8 @@ def locpoly(
         degree: Degree of local polynomial used. Its value must be greater than or
             equal to the value of ``derivative``.
             The recommended degree is ``derivative`` + 1.
-        bandwidth: Kernel bandwidth smoothing parameter.
+        bandwidth: Kernel bandwidth smoothing parameter. If not specified,
+            the bandwidth that minimizes the RSC is chosen.
         gridsize: Number of equally-spaced grid points over which the
             function is to be estimated.
         a: Start point of the grid.
@@ -89,15 +100,24 @@ def locpoly(
         truncate: If True, trim endpoints.
 
     Returns:
-        curvest: Curve estimate for the specified derivative of ``beta``.
+        Result: Result Dictionary containing
+            - gridpoints (np.ndarray): Sorted grid points (``x-dimension``) at
+                which the estimate of :math:`E[Y|X]` (or its derivative) is computed
+            - curvest (np.ndarray): Curve estimate for the specified
+                derivative of ``beta``
+            - bandwidth (float): Bandwidth used. If not pre-specified by
+                the user, this is the bandwidth that minimizes the RSC.
 
     Raises:
-        Exception: Input arrays ``x`` and ``y`` must be sorted by ``x``
+        Exception: Input data ``x`` and ``y`` must be sorted by ``x``
             before estimation.
 
     """
-    # The input arrays x (predictor) and y (response variable)
-    # must be sorted by x.
+    # Turn x (predictor) and y (response variable) into np.ndarrays
+    if isinstance(x, pd.Series):
+        x, y = np.asarray(x), np.asarray(y)
+
+    # Inputs x and y must be pre-sorted by x
     if is_sorted_jitted(x) is False:
         raise Exception("Input arrays x and y must be sorted by x before estimation!")
 
@@ -112,13 +132,6 @@ def locpoly(
 
     if bandwidth is None:
         bandwidth = get_bandwidth_rsc(x, y, degree, [a, b])
-
-    # tau is chosen so that the interval [-tau, tau] is the
-    # "effective support" of the Gaussian kernel,
-    # i.e. K is effectively zero outside of [-tau, tau].
-    # According to Wand (1994) and Wand & Jones (1995), tau = 4 is a
-    # reasonable choice for the Gaussian kernel.
-    # tau = 4
 
     # Set the bin width
     binwidth = (b - a) / (gridsize - 1)
@@ -145,9 +158,11 @@ def locpoly(
     curvest = get_curve_estimator(x_weighted, y_weighted, degree, derivative, gridsize)
 
     # Generate grid points for visual representation
-    # gridpoints = np.linspace(a, b, gridsize)
+    gridpoints = np.linspace(a, b, gridsize)
 
-    return curvest
+    rslt = Result(gridpoints=gridpoints, curvest=curvest, bandwidth=bandwidth)
+
+    return rslt
 
 
 def get_curve_estimator(
@@ -211,3 +226,17 @@ def get_curve_estimator(
     curvest = math.gamma(derivative + 1) * curvest
 
     return curvest
+
+
+def sort_by_x(
+    data: Union[np.ndarray, pd.DataFrame], xcol: Union[int, str]
+) -> Union[np.ndarray, pd.DataFrame]:
+    """Sort input data by x column."""
+    if isinstance(data, pd.DataFrame):
+        if isinstance(xcol, int):
+            xcol = list(data)[xcol]
+        data.sort_values(by=xcol, ascending=True, inplace=True)
+    else:  # np.ndarray
+        data = data[np.argsort(data[:, xcol])]
+
+    return data
