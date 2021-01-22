@@ -292,8 +292,7 @@ def test_integration_motorcycle_data(
     """It runs locpoly on example data with and without a user-specified bandwidth."""
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
 
-    time = np.asarray(motorcycle["time"])
-    accel = np.asarray(motorcycle["accel"])
+    time, accel = motorcycle["time"], motorcycle["accel"]
 
     gridpoints, estimate = locpoly(
         x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw

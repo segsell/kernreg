@@ -27,8 +27,8 @@ combine_bincounts_weights_jitted = njit(combine_bincounts_kernelweights)
 
 
 def locpoly(
-    x: np.ndarray,
-    y: np.ndarray,
+    x: Union[np.ndarray, pd.Series],
+    y: Union[np.ndarray, pd.Series],
     derivative: int,
     degree: Optional[int] = None,
     gridsize: int = 401,
@@ -92,10 +92,14 @@ def locpoly(
         curvest: Curve estimate for the specified derivative of ``beta``.
 
     Raises:
-        Exception: Input arrays ``x`` and ``y`` must be sorted by ``x``
+        Exception: Input data ``x`` and ``y`` must be sorted by ``x``
             before estimation.
 
     """
+    # Turn inputs into np.ndarrays
+    if isinstance(x, pd.Series):
+        x, y = np.asarray(x), np.asarray(y)
+
     # The input arrays x (predictor) and y (response variable)
     # must be sorted by x.
     if is_sorted_jitted(x) is False:
