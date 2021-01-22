@@ -11,6 +11,7 @@ from kernreg.locpoly import (
     get_kernelweights,
     is_sorted,
     locpoly,
+    sort_by_x,
 )
 
 
@@ -222,7 +223,7 @@ def test_kernelweights() -> None:
 
 
 def test_curve_estimation() -> None:
-    """Computes estimator for first column of beta, i.e. zero-th derivative."""
+    """Computes estimate for first column of beta, i.e. zero-th derivative."""
     weigthedx = np.asarray([[10]] + [[13]] * 8 + [[10]])
     weigthedy = np.reshape(np.asarray([16] + [22] * 8 + [16]), (-1, 1))
 
@@ -244,7 +245,6 @@ def test_curve_estimation() -> None:
     estimate = get_curve_estimator(
         weigthedx, weigthedy, degree=0, derivative=0, gridsize=10
     )
-
     np.testing.assert_almost_equal(estimate, expected)
 
 
@@ -263,7 +263,7 @@ def test_integration(
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
 
-    estimate = locpoly(
+    rslt = locpoly(
         x,
         y,
         derivative=0,
@@ -275,7 +275,8 @@ def test_integration(
         truncate=truncate,
     )
 
-    np.testing.assert_almost_equal(estimate, request.getfixturevalue(expected))
+    np.testing.assert_almost_equal(rslt["gridpoints"], np.linspace(0, 2, 11))
+    np.testing.assert_almost_equal(rslt["curvest"], request.getfixturevalue(expected))
 
 
 @pytest.mark.parametrize(
@@ -291,11 +292,32 @@ def test_integration_motorcycle_data(
     """It runs locpoly on example data with and without a user-specified bandwidth."""
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
 
-    time = np.asarray(motorcycle["time"])
-    accel = np.asarray(motorcycle["accel"])
+    time, accel = motorcycle["time"], motorcycle["accel"]
 
-    estimate = locpoly(
-        x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw
+    rslt = locpoly(x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw)
+
+    np.testing.assert_almost_equal(
+        rslt["gridpoints"], np.linspace(min(time), max(time), 101)
     )
+    np.testing.assert_almost_equal(rslt["curvest"], expected)
 
-    np.testing.assert_almost_equal(estimate, expected)
+
+@pytest.mark.parametrize("xcol", [0, "time"])
+def test_df_sort_by_x(xcol: Union[int, str]) -> None:
+    """Sort DataFrame based on column index or column name."""
+    expected = pd.read_stata("tests/resources/motorcycle.dta")
+
+    data = expected.sample(frac=1)  # Shuffle rows
+    sorted = sort_by_x(data, xcol)  # Sort by xcol
+
+    sorted.equals(expected)
+
+
+def test_arr_sort_by_x() -> None:
+    """Sort np.ndarray by first column."""
+    arr = np.array([[1, 3, 2, 0], [7, 6, 6, 8]]).T
+    expected = np.array([[0, 1, 2, 3], [8, 7, 6, 6]]).T
+
+    sorted = sort_by_x(arr, xcol=0)
+
+    np.testing.assert_equal(sorted, expected)

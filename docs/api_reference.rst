@@ -10,14 +10,14 @@ kernreg.locpoly
 ---------------
 
 .. automodule:: kernreg.locpoly
-   :members:
+   :members: locpoly, sort_by_x
 
 
 kernreg.bandwidth_selection
 ----------------------------------
 
 .. automodule:: kernreg.bandwidth_selection
-   :members:
+   :members: get_bandwidth_rsc
 
 
 kernreg.linear_binning

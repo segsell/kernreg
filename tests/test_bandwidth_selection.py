@@ -2,7 +2,7 @@
 from typing import List, Union
 
 import numpy as np
-import pandas as pd  # change motorcylce dta to csv?
+import pandas as pd
 import pytest
 
 from kernreg.bandwidth_selection import get_bandwidth_rsc
