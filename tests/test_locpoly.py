@@ -263,7 +263,7 @@ def test_integration(
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
 
-    gridpoints, estimate = locpoly(
+    gridpoints, estimate, bandwidth = locpoly(
         x,
         y,
         derivative=0,
@@ -294,7 +294,7 @@ def test_integration_motorcycle_data(
 
     time, accel = motorcycle["time"], motorcycle["accel"]
 
-    gridpoints, estimate = locpoly(
+    gridpoints, estimate, bandwidth = locpoly(
         x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw
     )
 

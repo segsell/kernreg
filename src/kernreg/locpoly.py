@@ -37,7 +37,7 @@ def locpoly(
     b: Optional[float] = None,
     binned: bool = False,
     truncate: bool = True,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, float]:
     r"""Estimates a regression function or their derivatives using local polynomials.
 
     Non-parametrically fits a smooth curve between a predictor, ``x``,
@@ -90,6 +90,7 @@ def locpoly(
         gridpoints: Sorted grid points (``x-dimension``) at which the estimate
             of E[Y|X] (or its derivative) is computed.
         curvest: Curve estimate for the specified derivative of ``beta``.
+        bandwidth: Bandwidth used.
 
     Raises:
         Exception: Input data ``x`` and ``y`` must be sorted by ``x``
@@ -151,7 +152,7 @@ def locpoly(
     # Generate grid points for visual representation
     gridpoints = np.linspace(a, b, gridsize)
 
-    return gridpoints, curvest
+    return gridpoints, curvest, bandwidth
 
 
 def get_curve_estimator(
