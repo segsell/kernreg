@@ -308,9 +308,9 @@ def test_df_sort_by_x(xcol: Union[int, str]) -> None:
     expected = pd.read_stata("tests/resources/motorcycle.dta")
 
     data = expected.sample(frac=1)  # Shuffle rows
-    sorted = sort_by_x(data, xcol)  # Sort by xcol
+    data_sorted = sort_by_x(data, xcol)  # Sort by xcol
 
-    sorted.equals(expected)
+    data_sorted.equals(expected)
 
 
 def test_arr_sort_by_x() -> None:
@@ -318,6 +318,6 @@ def test_arr_sort_by_x() -> None:
     arr = np.array([[1, 3, 2, 0], [7, 6, 6, 8]]).T
     expected = np.array([[0, 1, 2, 3], [8, 7, 6, 6]]).T
 
-    sorted = sort_by_x(arr, xcol=0)
+    data_sorted = sort_by_x(arr, xcol=0)
 
-    np.testing.assert_equal(sorted, expected)
+    np.testing.assert_equal(data_sorted, expected)
