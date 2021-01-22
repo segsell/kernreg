@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+from kernreg.locpoly import Result
+
 
 def plot(
     x_raw: Union[np.ndarray, pd.Series],
     y_raw: Union[np.ndarray, pd.Series],
-    gridpoints: np.ndarray,
-    curvest: np.ndarray,
-    bandwidth: float,
+    rslt: Result,
 ) -> None:
     """Plot fitted curve against raw data."""
     ax = plt.figure(figsize=(17.5, 10)).add_subplot(111)
@@ -33,11 +33,12 @@ def plot(
         s=33,
     )
 
-    ax.plot(gridpoints, curvest, color="orange", linewidth=3)
+    ax.plot(rslt["gridpoints"], rslt["curvest"], color="orange", linewidth=3)
 
+    bw = rslt["bandwidth"]
     blue_patch = mpatches.Patch(color="royalblue", label="Raw data")
     orange_patch = mpatches.Patch(
-        color="orange", label=f"Local polynomial smooth. Bandwidth = {bandwidth:.3f}"
+        color="orange", label=f"Local polynomial smooth. Bandwidth = {bw:.3f}"
     )
 
     plt.legend(

@@ -1,11 +1,11 @@
 """Estimate Functions Using Local Polynomials."""
 import math
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
+from mypy_extensions import TypedDict  # Python>=3.8: from typing import TypedDict
 from numba import njit
 import numpy as np
 import pandas as pd
-
 
 from kernreg.bandwidth_selection import get_bandwidth_rsc
 from kernreg.funcs_to_jit import (
@@ -14,6 +14,7 @@ from kernreg.funcs_to_jit import (
     is_sorted,
 )
 from kernreg.linear_binning import linear_binning
+
 
 # Jit the functions
 # Implemented as additional step since pytest-cov does not consider
@@ -24,6 +25,14 @@ linear_binning_jitted = njit(linear_binning)
 is_sorted_jitted = njit(is_sorted)
 get_weights_jitted = njit(get_kernelweights)
 combine_bincounts_weights_jitted = njit(combine_bincounts_kernelweights)
+
+
+class Result(TypedDict):
+    """Result dict for func ``locpoly``."""
+
+    gridpoints: np.ndarray
+    curvest: np.ndarray
+    bandwidth: float
 
 
 def locpoly(
@@ -37,7 +46,7 @@ def locpoly(
     b: Optional[float] = None,
     binned: bool = False,
     truncate: bool = True,
-) -> Tuple[np.ndarray, np.ndarray, float]:
+) -> Result:
     r"""Estimates a regression function or their derivatives using local polynomials.
 
     Non-parametrically fits a smooth curve between a predictor, ``x``,
@@ -87,10 +96,11 @@ def locpoly(
         truncate: If True, trim endpoints.
 
     Returns:
-        gridpoints: Sorted grid points (``x-dimension``) at which the estimate
-            of E[Y|X] (or its derivative) is computed.
-        curvest: Curve estimate for the specified derivative of ``beta``.
-        bandwidth: Bandwidth used.
+        # gridpoints: Sorted grid points (``x-dimension``) at which the estimate
+        #     of E[Y|X] (or its derivative) is computed.
+        # curvest: Curve estimate for the specified derivative of ``beta``.
+        # bandwidth: Bandwidth used.
+        Result: Result Dictionary.
 
     Raises:
         Exception: Input data ``x`` and ``y`` must be sorted by ``x``
@@ -152,7 +162,12 @@ def locpoly(
     # Generate grid points for visual representation
     gridpoints = np.linspace(a, b, gridsize)
 
-    return gridpoints, curvest, bandwidth
+    rslt = Result(gridpoints=gridpoints, curvest=curvest, bandwidth=bandwidth)
+    # rslt["gridpoints"] = gridpoints
+    # rslt["curvest"] = curvest
+    # rslt["bandwidth"] = bandwidth
+
+    return rslt
 
 
 def get_curve_estimator(

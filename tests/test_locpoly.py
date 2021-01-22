@@ -263,7 +263,7 @@ def test_integration(
     x = np.linspace(-1, 2, 1001)
     y = np.linspace(3, -20, 1001)
 
-    gridpoints, estimate, bandwidth = locpoly(
+    rslt = locpoly(
         x,
         y,
         derivative=0,
@@ -275,8 +275,8 @@ def test_integration(
         truncate=truncate,
     )
 
-    np.testing.assert_almost_equal(gridpoints, np.linspace(0, 2, 11))
-    np.testing.assert_almost_equal(estimate, request.getfixturevalue(expected))
+    np.testing.assert_almost_equal(rslt["gridpoints"], np.linspace(0, 2, 11))
+    np.testing.assert_almost_equal(rslt["curvest"], request.getfixturevalue(expected))
 
 
 @pytest.mark.parametrize(
@@ -294,12 +294,12 @@ def test_integration_motorcycle_data(
 
     time, accel = motorcycle["time"], motorcycle["accel"]
 
-    gridpoints, estimate, bandwidth = locpoly(
-        x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw
-    )
+    rslt = locpoly(x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw)
 
-    np.testing.assert_almost_equal(gridpoints, np.linspace(min(time), max(time), 101))
-    np.testing.assert_almost_equal(estimate, expected)
+    np.testing.assert_almost_equal(
+        rslt["gridpoints"], np.linspace(min(time), max(time), 101)
+    )
+    np.testing.assert_almost_equal(rslt["curvest"], expected)
 
 
 @pytest.mark.parametrize("xcol", [0, "time"])
