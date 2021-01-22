@@ -23,8 +23,6 @@ Installation
 Usage
 -----
 
-The other parameters are set by default.
-
 .. code-block:: python
 
-    estimate = locpoly(x, y)
+    rslt = locpoly(x, y)

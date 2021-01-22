@@ -6,7 +6,6 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx.ext.mathjax",
-    # "sphinx.ext.pngmath",
     "sphinx_autodoc_typehints",
     "sphinxcontrib.bibtex",
 ]

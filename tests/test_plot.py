@@ -15,9 +15,6 @@ def test_plot(mock_plt: Any) -> None:
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
     x, y = motorcycle["time"], motorcycle["accel"]
 
-    # rslt["gridpoints"] = np.linspace(min(x), min(y), 101)
-    # rslt["curvest"] = np.genfromtxt("tests/resources/motorcycle_expected_user_bw.csv")
-    # rslt["bandwidth"] = 3.3
     gridpoints = np.linspace(min(x), min(y), 101)
     curvest = np.genfromtxt("tests/resources/motorcycle_expected_user_bw.csv")
     bandwidth = 3.3
