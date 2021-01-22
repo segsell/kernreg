@@ -1,8 +1,7 @@
 """Nox sessions.
 
-This module was inspired by Claudio Jolowicz's
-[Hypermodern Python Guide]
-(https://github.com/cjolowicz/hypermodern-python/blob/master/noxfile.py).
+This module was inspired by Claudio Jolowicz's Hypermodern Python guide:
+https://github.com/cjolowicz/hypermodern-python/blob/master/noxfile.py.
 """
 import tempfile
 from typing import Any
