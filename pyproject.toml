@@ -1,8 +1,15 @@
 [tool.poetry]
 name = "kernreg"
-version = "0.0.2"
-description = "Tool for non-parametric curve fitting using local polynomials.."
+version = "0.0.3"
+description = "Tool for non-parametric curve fitting using local polynomials."
 authors = ["Sebastian Gsell <sebastian.gsell93@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/segsell/kernreg"
+keywords = ["kernel-regression",
+    "non-parametric",
+    "curve-fitting",
+    "local-polynomials"]
 
 [tool.poetry.dependencies]
 python = ">=3.7.1,<3.9"
