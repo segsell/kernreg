@@ -1,9 +1,10 @@
 """Estimate Functions Using Local Polynomials."""
 import math
-from typing import Optional
+from typing import Optional, Tuple, Union
 
 from numba import njit
 import numpy as np
+import pandas as pd
 
 
 from kernreg.bandwidth_selection import get_bandwidth_rsc
@@ -24,9 +25,6 @@ is_sorted_jitted = njit(is_sorted)
 get_weights_jitted = njit(get_kernelweights)
 combine_bincounts_weights_jitted = njit(combine_bincounts_kernelweights)
 
-# gridpoints: Array of sorted x values, i.e. grid points, at which the estimate
-# of E[Y|X] (or its derivative) is computed.
-
 
 def locpoly(
     x: np.ndarray,
@@ -39,7 +37,7 @@ def locpoly(
     b: Optional[float] = None,
     binned: bool = False,
     truncate: bool = True,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
     r"""Estimates a regression function or their derivatives using local polynomials.
 
     Non-parametrically fits a smooth curve between a predictor, ``x``,
@@ -89,6 +87,8 @@ def locpoly(
         truncate: If True, trim endpoints.
 
     Returns:
+        gridpoints: Sorted grid points (``x-dimension``) at which the estimate
+            of E[Y|X] (or its derivative) is computed.
         curvest: Curve estimate for the specified derivative of ``beta``.
 
     Raises:
@@ -145,9 +145,9 @@ def locpoly(
     curvest = get_curve_estimator(x_weighted, y_weighted, degree, derivative, gridsize)
 
     # Generate grid points for visual representation
-    # gridpoints = np.linspace(a, b, gridsize)
+    gridpoints = np.linspace(a, b, gridsize)
 
-    return curvest
+    return gridpoints, curvest
 
 
 def get_curve_estimator(
@@ -211,3 +211,17 @@ def get_curve_estimator(
     curvest = math.gamma(derivative + 1) * curvest
 
     return curvest
+
+
+def sort_by_x(
+    data: Union[np.ndarray, pd.DataFrame], xcol: Union[int, str]
+) -> Union[np.ndarray, pd.DataFrame]:
+    """Sort input data by x column."""
+    if isinstance(data, pd.DataFrame):
+        if isinstance(xcol, int):
+            xcol = list(data)[xcol]
+        data.sort_values(by=xcol, ascending=True, inplace=True)
+    else:  # np.ndarray
+        data = data[np.argsort(data[:, xcol])]
+
+    return data
