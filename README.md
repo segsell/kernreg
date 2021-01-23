@@ -19,12 +19,12 @@ Local polynomial fitting provides a simple way of finding a functional relations
 ## Installation
 Install **KernReg** via PyPI.
 
-```
+```console
 $ pip install kernreg
 ```
 
 ## Quick-Start
-```
+```python
 import kernreg as kr
 
 motorcycle = kr.get_example_data()
@@ -38,7 +38,7 @@ kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 ```
 ![default fit](https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_default_fit.png?raw=true)
 
-```
+```python
 # We can improve on the default specification by
 # choosing a higher order polynomial
 # and - since a higher polynomial introduces more wiggliness -
