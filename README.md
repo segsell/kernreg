@@ -25,15 +25,34 @@ $ pip install kernreg
 
 ## Quick-Start
 ```
-import kenreg as kr
+import kernreg as kr
 
 motorcycle = kr.get_example_data()
-x, y = motorcylce["time"], motorcycle["accel"]
+x, y = motorcycle["time"], motorcycle["accel"]
 
-rslt = locpoly(x, y)
-
-plot(x, y, rslt)
+# By default, only x and y need to be provided.
+# Derivative = 0 is chosen by default
+# and hence the polynomial degree is set to 1.
+rslt_default = kr.locpoly(x, y)`
+kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 ```
+
+<p align="center">
+  <img width="1050" height="600" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/motorcycle_default_fit.png?raw=true">
+</p>
+
+```
+# We can improve on the default specification by
+# choosing a higher order polynomial
+# and - since a higher polynomial introduces more wiggliness
+# a slightly larger bandwidth.
+rslt_user = kr.locpoly(x, y, degree=3, bandwidth=3.3)
+kr.plot(x, y, rslt_user, "motorcycle_user_fit.png")
+```
+
+<p align="center">
+  <img width="1050" height="600" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/motorcycle_user_fit.png?raw=true">
+</p>
 
 ## References
 Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability, 66*. Chapman & Hall.
