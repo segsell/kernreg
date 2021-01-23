@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kernreg.locpoly import (
+from kernreg.smooth import (
     combine_bincounts_kernelweights,
     get_curve_estimator,
     get_kernelweights,
     is_sorted,
     locpoly,
 )
-from kernreg.utils import sort_by_x
+from kernreg.utils import get_example_data, sort_by_x
 
 
 @pytest.fixture
@@ -189,10 +189,7 @@ def test_combine_weights_degree_zero(
     degree: int, count: int, expected: Callable, request: Any
 ) -> None:
     """Combines bincounts and weights where degree of polynomial is zero."""
-    # if degree = 1, no ravel needed --> weightedx multidimensional
-    # check regression/integration test if array (shape) handling still works
-    # if degree 0 and weightedx of the form [[1], [2], [3] ]
-
+    # if degree = 1, no ravel needed, since x_weighted multidimensional
     bandwidth = 0.1
     a, b, gridsize = 0, 1, 10
     binwidth = (b - a) / (gridsize - 1)
@@ -203,17 +200,17 @@ def test_combine_weights_degree_zero(
     symmetric_weights = [0.005, 0.1, 0.5]
     weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
 
-    weightedx, weightedy = combine_bincounts_kernelweights(
+    x_weighted, y_weighted = combine_bincounts_kernelweights(
         xcounts, ycounts, weights, degree, gridsize, bandwidth, binwidth
     )
 
     if degree == 0:
-        weightedx, weightedy = weightedx.ravel(), weightedy.ravel()
+        x_weighted, y_weighted = x_weighted.ravel(), y_weighted.ravel()
 
     expected_x, expected_y = request.getfixturevalue(expected)
 
-    np.testing.assert_allclose(weightedx, expected_x)
-    np.testing.assert_allclose(weightedy, expected_y)
+    np.testing.assert_allclose(x_weighted, expected_x)
+    np.testing.assert_allclose(y_weighted, expected_y)
 
 
 def test_kernelweights() -> None:
@@ -299,7 +296,8 @@ def test_integration_motorcycle_data(
     degree: int, gridsize: int, bw: Union[float, None], expected: np.ndarray
 ) -> None:
     """It runs locpoly on example data with and without a user-specified bandwidth."""
-    motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
+    # motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
+    motorcycle = get_example_data()
 
     time, accel = motorcycle["time"], motorcycle["accel"]
 

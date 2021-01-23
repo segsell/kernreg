@@ -1,20 +1,30 @@
 """Visualize results."""
-from typing import Union
+from typing import Optional, Union
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from kernreg.locpoly import Result
+from kernreg.smooth import Result
 
 
 def plot(
     x_raw: Union[np.ndarray, pd.Series],
     y_raw: Union[np.ndarray, pd.Series],
     rslt: Result,
+    save_as: Optional[str] = None,
 ) -> None:
-    """Plot fitted curve against raw data."""
+    """Plot fitted curve against raw data.
+
+    Arguments:
+        x_raw: Raw predictor data.
+        y_raw: Raw response data.
+        rslt: Result dictionary from :func:`~kernreg.smooth.locpoly`
+        save_as: File path and type (e.g. '.png', '.jpg') to save the image.
+            If ``None``, the image is not saved.
+
+    """
     ax = plt.figure(figsize=(17.5, 10)).add_subplot(111)
 
     if isinstance(x_raw, pd.Series) and isinstance(y_raw, pd.Series):
@@ -45,8 +55,8 @@ def plot(
         handles=[blue_patch, orange_patch],
         prop={"size": 16},
     )
+
+    if isinstance(save_as, str):
+        plt.savefig(save_as, dpi=300)
+
     plt.show()
-
-
-# if __name__ == "__main__":
-#     plot()
