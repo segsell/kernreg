@@ -11,8 +11,8 @@ from kernreg.locpoly import (
     get_kernelweights,
     is_sorted,
     locpoly,
-    sort_by_x,
 )
+from kernreg.utils import sort_by_x
 
 
 @pytest.fixture
@@ -75,6 +75,12 @@ def output_zero_count() -> Tuple[np.ndarray, np.ndarray]:
     )
 
     return x, y
+
+
+@pytest.fixture
+def output_integration_default() -> np.ndarray:
+    """Output data for default arguments of gridsize, binned, truncate."""
+    return np.genfromtxt("tests/resources/toy_expect_default.csv")
 
 
 @pytest.fixture
@@ -249,15 +255,16 @@ def test_curve_estimation() -> None:
 
 
 @pytest.mark.parametrize(
-    "binned, truncate, expected",
+    "gridsize, binned, truncate, expected",
     [
-        (False, True, "output_integration_false_true"),
-        (True, True, "output_integration_true_true"),
-        (False, False, "output_integration_false_false"),
+        (None, False, True, "output_integration_default"),
+        (11, False, True, "output_integration_false_true"),
+        (11, True, True, "output_integration_true_true"),
+        (11, False, False, "output_integration_false_false"),
     ],
 )
 def test_integration(
-    binned: bool, truncate: bool, expected: Callable, request: Any
+    gridsize: int, binned: bool, truncate: bool, expected: Callable, request: Any
 ) -> None:
     """It determines degree of the polynomial based on order of the derivative."""
     x = np.linspace(-1, 2, 1001)
@@ -267,7 +274,7 @@ def test_integration(
         x,
         y,
         derivative=0,
-        gridsize=11,
+        gridsize=gridsize,
         bandwidth=2,
         a=0,
         b=2,
@@ -275,29 +282,33 @@ def test_integration(
         truncate=truncate,
     )
 
-    np.testing.assert_almost_equal(rslt["gridpoints"], np.linspace(0, 2, 11))
+    gridsize = 401 if gridsize is None else gridsize
+    np.testing.assert_almost_equal(rslt["gridpoints"], np.linspace(0, 2, gridsize))
     np.testing.assert_almost_equal(rslt["curvest"], request.getfixturevalue(expected))
 
 
 @pytest.mark.parametrize(
-    "bw, expected",
+    "degree, gridsize, bw, expected",
     [
-        (3.3, np.genfromtxt("tests/resources/motorcycle_expected_user_bw.csv")),
-        (None, np.genfromtxt("tests/resources/motorcycle_expected_auto_bw.csv")),
+        (1, 101, 3.3, np.genfromtxt("tests/resources/mcycle_expect_user_bw.csv")),
+        (1, None, None, np.genfromtxt("tests/resources/mcycle_expect_auto_bw.csv")),
+        (3, None, None, np.genfromtxt("tests/resources/mcycle_expect_degree_3.csv")),
     ],
 )
 def test_integration_motorcycle_data(
-    bw: Union[float, None], expected: np.ndarray
+    degree: int, gridsize: int, bw: Union[float, None], expected: np.ndarray
 ) -> None:
     """It runs locpoly on example data with and without a user-specified bandwidth."""
     motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
 
     time, accel = motorcycle["time"], motorcycle["accel"]
 
-    rslt = locpoly(x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw)
+    rslt = locpoly(
+        x=time, y=accel, derivative=0, degree=degree, gridsize=gridsize, bandwidth=bw
+    )
 
     np.testing.assert_almost_equal(
-        rslt["gridpoints"], np.linspace(min(time), max(time), 101)
+        rslt["gridpoints"], np.linspace(min(time), max(time), len(rslt["gridpoints"]))
     )
     np.testing.assert_almost_equal(rslt["curvest"], expected)
 

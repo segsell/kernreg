@@ -37,9 +37,9 @@ class Result(TypedDict):
 def locpoly(
     x: Union[np.ndarray, pd.Series],
     y: Union[np.ndarray, pd.Series],
-    derivative: int,
+    derivative: int = 0,
     degree: Optional[int] = None,
-    gridsize: int = 401,
+    gridsize: Optional[int] = None,
     bandwidth: Optional[float] = None,
     a: Optional[float] = None,
     b: Optional[float] = None,
@@ -86,6 +86,7 @@ def locpoly(
         y: Array of y data. This must be same length as x. Missing values are
             not accepted. Must be presorted by x.
         derivative: Order of the derivative to be estimated.
+            ``derivative`` = 0 means a function, i.e. `0`-th derivative, is fitted.
         degree: Degree of local polynomial used. Its value must be greater than or
             equal to the value of ``derivative``.
             The recommended degree is ``derivative`` + 1.
@@ -100,7 +101,7 @@ def locpoly(
         truncate: If True, trim endpoints.
 
     Returns:
-        Result: Result Dictionary containing
+        Result: Result Dictionary containing:
             - gridpoints (np.ndarray): Sorted grid points (``x-dimension``) at
                 which the estimate of :math:`E[Y|X]` (or its derivative) is computed
             - curvest (np.ndarray): Curve estimate for the specified
@@ -123,6 +124,12 @@ def locpoly(
 
     if degree is None:
         degree = derivative + 1
+
+    if gridsize is None:
+        if len(x) > 400:
+            gridsize = 401
+        else:
+            gridsize = len(x)
 
     if a is None:
         a = min(x)
@@ -226,17 +233,3 @@ def get_curve_estimator(
     curvest = math.gamma(derivative + 1) * curvest
 
     return curvest
-
-
-def sort_by_x(
-    data: Union[np.ndarray, pd.DataFrame], xcol: Union[int, str]
-) -> Union[np.ndarray, pd.DataFrame]:
-    """Sort input data by x column."""
-    if isinstance(data, pd.DataFrame):
-        if isinstance(xcol, int):
-            xcol = list(data)[xcol]
-        data.sort_values(by=xcol, ascending=True, inplace=True)
-    else:  # np.ndarray
-        data = data[np.argsort(data[:, xcol])]
-
-    return data

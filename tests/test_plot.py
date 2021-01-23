@@ -16,7 +16,7 @@ def test_plot(mock_plt: Any) -> None:
     x, y = motorcycle["time"], motorcycle["accel"]
 
     gridpoints = np.linspace(min(x), max(x), 101)
-    curvest = np.genfromtxt("tests/resources/motorcycle_expected_user_bw.csv")
+    curvest = np.genfromtxt("tests/resources/mcycle_expect_user_bw.csv")
     bandwidth = 3.3
     rslt = Result(gridpoints=gridpoints, curvest=curvest, bandwidth=bandwidth)
 
