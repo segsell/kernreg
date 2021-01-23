@@ -38,7 +38,7 @@ kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 ```
 
 <p align="center">
-  <img width="1050" height="600" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/motorcycle_default_fit.png?raw=true">
+  <img width="1050" height="600" src="https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_default_fit.png?raw=true">
 </p>
 
 ```
@@ -51,7 +51,7 @@ kr.plot(x, y, rslt_user, "motorcycle_user_fit.png")
 ```
 
 <p align="center">
-  <img width="1050" height="600" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/motorcycle_user_fit.png?raw=true">
+  <img width="1050" height="600" src="https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_user_fit.png?raw=true">
 </p>
 
 ## References
