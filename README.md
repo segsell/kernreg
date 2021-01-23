@@ -1,10 +1,11 @@
+# KernReg
 [![PyPI](https://img.shields.io/pypi/v/kernreg.svg)](https://pypi.org/project/kernreg/)
 [![Continuous Integration](https://github.com/segsell/kernreg/workflows/Continuous%20Integration/badge.svg?branch=main)](https://github.com/segsell/kernreg/actions?query=workflow%3A%22Continuous+Integration%22)
 [![Codecov](https://codecov.io/gh/segsell/kernreg/branch/main/graph/badge.svg)](https://codecov.io/gh/segsell/kernreg)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/5dd752959ec8415c8fa9cc9c18ac7d9a)](https://www.codacy.com/gh/segsell/kernreg/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=segsell/kernreg&amp;utm_campaign=Badge_Grade)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-# KernReg
+## Introduction
 **KernReg** provides a pure-Python routine for local polynomial kernel regression based on [Wand & Jones (1995)](http://matt-wand.utsacademics.info/webWJbook/) and their accompanying *R* package [KernSmooth](https://www.rdocumentation.org/packages/KernSmooth/versions/2.23-18). In addition, **KernReg** comes with an automatic bandwidth selection procedure that minimizes the residual squares criterion proposed by [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725).
 
 **KernReg** allows for the estimation of a regression function as well as their derivatives. The degree of the polynomial may be chosen ad libitum, but ```degree = derivative + 1``` is commonly recommended and thus set by default.
@@ -13,8 +14,26 @@
   <img width="650" height="450" src="https://github.com/segsell/hypermodern-kernreg/blob/main/docs/images/Arthur_Radebaugh_retrofuturism.jpg?raw=true">
 </p>
 
-## Background
 Local polynomial fitting provides a simple way of finding a functional relationship between two variables (where X typically denotes the predictor, and Y the response variable)  without the imposition of a parametric model. It is a natural extension of local mean smoothing, as described by [Nadaraya (1964)](https://www.semanticscholar.org/paper/On-Estimating-Regression-Nadaraya/05175204318c3c01e3301fd864553071039605d2#paper-header) and [Watson (1964)](http://www.jstor.org/stable/25049340). Instead of fitting a local mean, local polynomial smooting involves fitting a local *p*th-order polynomial via locally weighted least-squares. The Nadaraya–Watson estimator is thus equivalent to fitting a local polynomial of degree zero. Local polynomials of higher order have better bias properties and, in general, do not require bias adjustment at the boundaries of the regression space.
+
+## Installation
+Install **KernReg** via PyPI.
+
+.. code-block:: console
+
+    $ pip install kernreg
+
+## Quick-Start
+.. code-block:: python
+
+  import kenreg as kr
+
+  motorcycle = kr.get_example_data()
+  x, y = motorcylce["time"], motorcycle["accel"]
+
+  rslt = locpoly(x, y)
+
+  plot(x, y, rslt)
 
 ## References
 Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability, 66*. Chapman & Hall.
