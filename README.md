@@ -19,21 +19,21 @@ Local polynomial fitting provides a simple way of finding a functional relations
 ## Installation
 Install **KernReg** via PyPI.
 
-.. code-block:: console
-
-    $ pip install kernreg
+```
+$ pip install kernreg
+```
 
 ## Quick-Start
-.. code-block:: python
+```
+import kenreg as kr
 
-  import kenreg as kr
+motorcycle = kr.get_example_data()
+x, y = motorcylce["time"], motorcycle["accel"]
 
-  motorcycle = kr.get_example_data()
-  x, y = motorcylce["time"], motorcycle["accel"]
+rslt = locpoly(x, y)
 
-  rslt = locpoly(x, y)
-
-  plot(x, y, rslt)
+plot(x, y, rslt)
+```
 
 ## References
 Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability, 66*. Chapman & Hall.
