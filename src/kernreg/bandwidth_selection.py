@@ -9,6 +9,7 @@ import numpy as np
 def get_bandwidth_rsc(
     x: np.ndarray,
     y: np.ndarray,
+    derivative: int,
     degree: int,
     x_range: Optional[Union[List[float], np.ndarray]] = None,
 ) -> float:
@@ -52,16 +53,17 @@ def get_bandwidth_rsc(
 
 
     Arguments:
-        x: Dependent variable
-        y: Independent variable
-        degree: Degree of the polynomial
+        x: Predictor variable.
+        y: Response variable.
+        derivative: Order of the derivative to be estimated.
+        degree: Degree of the polynomial.
         x_range: Start and end point of the domain of ``x`` to consider.
             Default is the entire range of ``x``.
 
     Returns:
         Bandwidth that minimizes the residual squares criterion.
             Adjusted by constant for the Gaussian kernel.
-            See :cite:`Fan1996`, p. 120.
+            See :cite:`Fan1996`, p. 120, and :cite:`Fan1995`.
 
     """
     if x_range is not None:
@@ -72,7 +74,8 @@ def get_bandwidth_rsc(
         xmax = max(x)
 
     # Construct sequence of 11 x-values to evaluate bandwidth on
-    xseq = np.linspace(xmin, xmax, 11)
+    n_evals = 11
+    xseq = np.linspace(xmin, xmax, n_evals)
 
     bw_min = (xmax - xmin) / 20
     bw_max = (xmax - xmin) / 2
@@ -81,20 +84,28 @@ def get_bandwidth_rsc(
     # Determine total number of bandwidths to iterate over
     total = math.ceil(np.log(bw_max / bw_min) / np.log(bw_cons))
     bw_arr = np.array([bw_min * (bw_cons ** (i + 1)) for i in range(total)])
-    cartesian_pairs = np.transpose([np.tile(xseq, len(bw_arr)), np.repeat(bw_arr, 11)])
+    cartesian_pairs = np.transpose(
+        [np.tile(xseq, len(bw_arr)), np.repeat(bw_arr, n_evals)]
+    )
 
     rsc_p = partial(get_residual_squares_criterion, x, y, degree)
 
-    sums_1d = np.zeros(total * 11)
+    sums_1d = np.zeros(total * n_evals)
     for index, value in enumerate(cartesian_pairs):
         rsc = rsc_p(value)
         sums_1d[index] += rsc
 
-    rsc_sums = np.sum(sums_1d.reshape(total, 11), axis=1)
+    rsc_sums = np.sum(sums_1d.reshape(total, n_evals), axis=1)
 
-    # Adjusting constants for the Gaussian kernel, fiven p = v + 1
-    # See Fan and Gjibels (1995a)
-    const = np.array([1, 0.8403, 0.8285, 0.8085, 0.8146, 0.8098, 0.8159])
+    # Adjusting constants for the Gaussian kernel, see :cite:`Fan1995`.
+    if degree == derivative + 1:
+        const = np.array([1, 0.8403, 0.8285, 0.8085, 0.8146, 0.8098, 0.8159])
+    elif degree == derivative + 3:
+        const = [np.nan] * 2 + [0.9554, 0.8975, 0.8846, 0.8671, 0.8652]
+    elif degree == derivative + 5:
+        const = [np.nan] * 4 + [0.9495, 0.9165, 0.9055]
+    else:  # degree = derivative + 7
+        const = [np.nan] * 6 + [0.9470]
 
     bw = float(bw_arr[np.where(rsc_sums == np.min(rsc_sums))])
     bw_adj = bw * const[degree - 1]
@@ -150,7 +161,7 @@ def get_residual_squares_criterion(
         y: Array of y data, response variable
         degree: Degree of the polynomial.
         input_arr: Array or List with two entries
-            0) ``x_0``: Point of ``x`` to evaluate bandwidth on
+            0) ``x_0``: Evaluation point
             1) ``bw``: bandwidth
 
     Returns:
@@ -180,9 +191,8 @@ def get_residual_squares_criterion(
         0, 0
     ]  # first diagonal element reflects the effective number of local data points
 
-    beta_hat = (
-        S_inv @ X.T @ weights @ y
-    )  # beta_hat: solution to weighted least-squares problem p.59 (3.5)
+    # Solution to weighted least-squares problem, see :cite:`Fan1996`, p.59 (3.5)
+    beta_hat = S_inv @ X.T @ weights @ y
     y_hat = X @ beta_hat
 
     nominator = np.sum(((y - y_hat) ** 2) * weights)

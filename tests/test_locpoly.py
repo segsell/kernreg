@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from kernreg.locpoly import (
+from kernreg.smooth import (
     combine_bincounts_kernelweights,
     get_curve_estimator,
     get_kernelweights,
     is_sorted,
     locpoly,
-    sort_by_x,
 )
+from kernreg.utils import get_example_data, sort_by_x
 
 
 @pytest.fixture
@@ -75,6 +75,12 @@ def output_zero_count() -> Tuple[np.ndarray, np.ndarray]:
     )
 
     return x, y
+
+
+@pytest.fixture
+def output_integration_default() -> np.ndarray:
+    """Output data for default arguments of gridsize, binned, truncate."""
+    return np.genfromtxt("tests/resources/toy_expect_default.csv")
 
 
 @pytest.fixture
@@ -163,6 +169,27 @@ def test_input_arr_not_sorted_ascend(arr: Callable, request: Any) -> None:
     assert str(error.value) == msg
 
 
+@pytest.mark.parametrize("degree", [2, 4, 6, 8])
+def test_wrong_degree(degree: int, array_sorted: Callable) -> None:
+    """It raises an Exception if polynomial degree has even order."""
+    x = array_sorted
+    y = np.linspace(3, -20, 1000)
+
+    msg = (
+        "The degree of the polynomial must be equal to derivative "
+        "v + 1, v + 3, v + 5, or v + 7."
+    )
+
+    with pytest.raises(Exception) as error:
+        assert locpoly(
+            x,
+            y,
+            derivative=0,
+            degree=degree,
+        )
+    assert str(error.value) == msg
+
+
 @pytest.mark.parametrize(
     "arr, expected",
     [("array_sorted", True), ("array_unsorted", False)],
@@ -183,10 +210,7 @@ def test_combine_weights_degree_zero(
     degree: int, count: int, expected: Callable, request: Any
 ) -> None:
     """Combines bincounts and weights where degree of polynomial is zero."""
-    # if degree = 1, no ravel needed --> weightedx multidimensional
-    # check regression/integration test if array (shape) handling still works
-    # if degree 0 and weightedx of the form [[1], [2], [3] ]
-
+    # if degree = 1, no ravel needed, since x_weighted multidimensional
     bandwidth = 0.1
     a, b, gridsize = 0, 1, 10
     binwidth = (b - a) / (gridsize - 1)
@@ -197,17 +221,17 @@ def test_combine_weights_degree_zero(
     symmetric_weights = [0.005, 0.1, 0.5]
     weights = np.asarray(symmetric_weights + [1] + symmetric_weights[::-1])
 
-    weightedx, weightedy = combine_bincounts_kernelweights(
+    x_weighted, y_weighted = combine_bincounts_kernelweights(
         xcounts, ycounts, weights, degree, gridsize, bandwidth, binwidth
     )
 
     if degree == 0:
-        weightedx, weightedy = weightedx.ravel(), weightedy.ravel()
+        x_weighted, y_weighted = x_weighted.ravel(), y_weighted.ravel()
 
     expected_x, expected_y = request.getfixturevalue(expected)
 
-    np.testing.assert_allclose(weightedx, expected_x)
-    np.testing.assert_allclose(weightedy, expected_y)
+    np.testing.assert_allclose(x_weighted, expected_x)
+    np.testing.assert_allclose(y_weighted, expected_y)
 
 
 def test_kernelweights() -> None:
@@ -249,15 +273,16 @@ def test_curve_estimation() -> None:
 
 
 @pytest.mark.parametrize(
-    "binned, truncate, expected",
+    "gridsize, binned, truncate, expected",
     [
-        (False, True, "output_integration_false_true"),
-        (True, True, "output_integration_true_true"),
-        (False, False, "output_integration_false_false"),
+        (None, False, True, "output_integration_default"),
+        (11, False, True, "output_integration_false_true"),
+        (11, True, True, "output_integration_true_true"),
+        (11, False, False, "output_integration_false_false"),
     ],
 )
 def test_integration(
-    binned: bool, truncate: bool, expected: Callable, request: Any
+    gridsize: int, binned: bool, truncate: bool, expected: Callable, request: Any
 ) -> None:
     """It determines degree of the polynomial based on order of the derivative."""
     x = np.linspace(-1, 2, 1001)
@@ -267,7 +292,7 @@ def test_integration(
         x,
         y,
         derivative=0,
-        gridsize=11,
+        gridsize=gridsize,
         bandwidth=2,
         a=0,
         b=2,
@@ -275,29 +300,33 @@ def test_integration(
         truncate=truncate,
     )
 
-    np.testing.assert_almost_equal(rslt["gridpoints"], np.linspace(0, 2, 11))
+    gridsize = 401 if gridsize is None else gridsize
+    np.testing.assert_almost_equal(rslt["gridpoints"], np.linspace(0, 2, gridsize))
     np.testing.assert_almost_equal(rslt["curvest"], request.getfixturevalue(expected))
 
 
 @pytest.mark.parametrize(
-    "bw, expected",
+    "degree, gridsize, bw, expected",
     [
-        (3.3, np.genfromtxt("tests/resources/motorcycle_expected_user_bw.csv")),
-        (None, np.genfromtxt("tests/resources/motorcycle_expected_auto_bw.csv")),
+        (1, 101, 3.3, np.genfromtxt("tests/resources/mcycle_expect_user_bw.csv")),
+        (1, None, None, np.genfromtxt("tests/resources/mcycle_expect_auto_bw.csv")),
+        (3, None, None, np.genfromtxt("tests/resources/mcycle_expect_degree_3.csv")),
     ],
 )
 def test_integration_motorcycle_data(
-    bw: Union[float, None], expected: np.ndarray
+    degree: int, gridsize: int, bw: Union[float, None], expected: np.ndarray
 ) -> None:
     """It runs locpoly on example data with and without a user-specified bandwidth."""
-    motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
+    motorcycle = get_example_data()
 
     time, accel = motorcycle["time"], motorcycle["accel"]
 
-    rslt = locpoly(x=time, y=accel, derivative=0, degree=1, gridsize=101, bandwidth=bw)
+    rslt = locpoly(
+        x=time, y=accel, derivative=0, degree=degree, gridsize=gridsize, bandwidth=bw
+    )
 
     np.testing.assert_almost_equal(
-        rslt["gridpoints"], np.linspace(min(time), max(time), 101)
+        rslt["gridpoints"], np.linspace(min(time), max(time), len(rslt["gridpoints"]))
     )
     np.testing.assert_almost_equal(rslt["curvest"], expected)
 
