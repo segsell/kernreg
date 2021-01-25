@@ -169,6 +169,27 @@ def test_input_arr_not_sorted_ascend(arr: Callable, request: Any) -> None:
     assert str(error.value) == msg
 
 
+@pytest.mark.parametrize("degree", [2, 4, 6, 8])
+def test_wrong_degree(degree: int, array_sorted: Callable) -> None:
+    """It raises an Exception if polynomial degree has even order."""
+    x = array_sorted
+    y = np.linspace(3, -20, 1000)
+
+    msg = (
+        "The degree of the polynomial must be equal to derivative "
+        "v + 1, v + 3, v + 5, or v + 7."
+    )
+
+    with pytest.raises(Exception) as error:
+        assert locpoly(
+            x,
+            y,
+            derivative=0,
+            degree=degree,
+        )
+    assert str(error.value) == msg
+
+
 @pytest.mark.parametrize(
     "arr, expected",
     [("array_sorted", True), ("array_unsorted", False)],
@@ -296,7 +317,6 @@ def test_integration_motorcycle_data(
     degree: int, gridsize: int, bw: Union[float, None], expected: np.ndarray
 ) -> None:
     """It runs locpoly on example data with and without a user-specified bandwidth."""
-    # motorcycle = pd.read_stata("tests/resources/motorcycle.dta")
     motorcycle = get_example_data()
 
     time, accel = motorcycle["time"], motorcycle["accel"]

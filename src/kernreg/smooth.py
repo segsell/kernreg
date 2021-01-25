@@ -14,6 +14,7 @@ from kernreg.funcs_to_jit import (
     is_sorted,
 )
 from kernreg.linear_binning import linear_binning
+from kernreg.utils import process_inputs
 
 
 # Jit the functions
@@ -53,7 +54,7 @@ def locpoly(
     over an equally-spaced grid is used for fast computation.
 
     Note that for a `v`-th derivative the order of the polynomial
-    should be :math:`p = v + 1`.
+    must be :math:`p = v + 1`, :math:`v + 3`, :math:`v + 5`, or :math:`v + 7`.
 
     The local polynomial curve estimator ``beta`` and its derivatives are
     minimizers to the locally weighted least-squares problem.
@@ -87,9 +88,8 @@ def locpoly(
             not accepted. Must be presorted by x.
         derivative: Order of the derivative to be estimated.
             ``derivative`` = 0 means a function, i.e. `0`-th derivative, is fitted.
-        degree: Degree of local polynomial used. Its value must be greater than or
-            equal to the value of ``derivative``.
-            The recommended degree is ``derivative`` + 1.
+        degree: Degree of local polynomial used. Its value must be equal to
+            ``derivative + 1`` or ``derivative + 3``.
         bandwidth: Kernel bandwidth smoothing parameter. If not specified,
             the bandwidth that minimizes the RSC is chosen.
         gridsize: Number of equally-spaced grid points over which the
@@ -112,35 +112,28 @@ def locpoly(
     Raises:
         Exception: Input data ``x`` and ``y`` must be sorted by ``x``
             before estimation.
+        Exception: The degree of the polynomial must be equal to
+            ``derivative + 1``, ``derivative + 3``, ``derivative + 5``, or
+             ``derivative + 7``.
 
     """
-    # Turn x (predictor) and y (response variable) into np.ndarrays
-    if isinstance(x, pd.Series):
-        x, y = np.asarray(x), np.asarray(y)
+    x, y, degree, gridsize, a, b = process_inputs(
+        x, y, derivative, degree, gridsize, a, b
+    )
 
-    # Inputs x and y must be pre-sorted by x
     if is_sorted_jitted(x) is False:
         raise Exception("Input arrays x and y must be sorted by x before estimation!")
 
-    if degree is None:
-        degree = derivative + 1
-
-    if gridsize is None:
-        if len(x) > 400:
-            gridsize = 401
-        else:
-            gridsize = len(x)
-
-    if a is None:
-        a = min(x)
-
-    if b is None:
-        b = max(x)
+    if degree not in [derivative + 1, derivative + 3, derivative + 5, derivative + 7]:
+        raise Exception(
+            "The degree of the polynomial must be equal to derivative "
+            "v + 1, v + 3, v + 5, or v + 7."
+        )
 
     if bandwidth is None:
-        bandwidth = get_bandwidth_rsc(x, y, degree, [a, b])
+        bandwidth = get_bandwidth_rsc(x, y, derivative, degree, [a, b])
 
-    # Set the bin width
+    # Set bin width
     binwidth = (b - a) / (gridsize - 1)
 
     # 1. Bin the data if not already binned
