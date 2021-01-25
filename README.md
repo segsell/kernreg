@@ -37,7 +37,7 @@ x, y = motorcycle["time"], motorcycle["accel"]
 rslt_default = kr.locpoly(x, y)
 kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 ```
-![default fit](https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_default_fit.png?raw=true)
+![default fit](https://github.com/segsell/kernreg/blob/exampledata/docs/images/motorcycle_default_fit.png?raw=true)
 
 ```python
 # We can improve on the default specification by
@@ -45,7 +45,7 @@ kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 rslt_user = kr.locpoly(x, y, degree=3)
 kr.plot(x, y, rslt_user, "motorcycle_user_fit.png")
 ```
-![user fit](https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_user_fit.png?raw=true)
+![user fit](https://github.com/segsell/kernreg/blob/exampledata/docs/images/motorcycle_user_fit.png?raw=true)
 
 ## References
 Fan, J. and Gijbels, I. (1996). [Local Polynomial Modelling and Its Applications](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725). *Monographs on Statistics and Applied Probability, 66*. Chapman & Hall.
