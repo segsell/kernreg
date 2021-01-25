@@ -34,7 +34,7 @@ x, y = motorcycle["time"], motorcycle["accel"]
 # By default, only x and y need to be provided.
 # Derivative = 0 is chosen by default
 # and hence the polynomial degree = 0 + 1.
-rslt_default = kr.locpoly(x, y)`
+rslt_default = kr.locpoly(x, y)
 kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 ```
 ![default fit](https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_default_fit.png?raw=true)
@@ -42,9 +42,7 @@ kr.plot(x, y, rslt_default, "motorcycle_default_fit.png")
 ```python
 # We can improve on the default specification by
 # choosing a higher order polynomial
-# and - since a higher polynomial introduces more wiggliness -
-# a slightly larger bandwidth.
-rslt_user = kr.locpoly(x, y, degree=3, bandwidth=3.3)
+rslt_user = kr.locpoly(x, y, degree=3)
 kr.plot(x, y, rslt_user, "motorcycle_user_fit.png")
 ```
 ![user fit](https://github.com/segsell/hypermodern-kernreg/blob/exampledata/docs/images/motorcycle_user_fit.png?raw=true)
