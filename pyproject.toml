@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kernreg"
-version = "0.0.8"
+version = "0.0.9"
 description = "Tool for non-parametric curve fitting using local polynomials."
 authors = ["Sebastian Gsell <sebastian.gsell93@gmail.com>"]
 license = "MIT"

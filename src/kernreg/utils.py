@@ -4,6 +4,8 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
+from kernreg.config import RESOURCES_DIR
+
 
 def sort_by_x(
     data: Union[np.ndarray, pd.DataFrame], xcol: Union[int, str] = 0
@@ -54,4 +56,4 @@ def process_inputs(
 def get_example_data() -> pd.DataFrame:
     """Load motorcycle data."""
     # Already sorted by x
-    return pd.read_stata("kernreg/example_data/motorcycle.dta")
+    return pd.read_stata(RESOURCES_DIR / "motorcycle.dta")
