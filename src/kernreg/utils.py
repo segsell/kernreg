@@ -4,7 +4,7 @@ from typing import Optional, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from kernreg.config import TEST_RESOURCES_DIR
+from kernreg.config import RESOURCES_DIR
 
 
 def sort_by_x(
@@ -56,4 +56,4 @@ def process_inputs(
 def get_example_data() -> pd.DataFrame:
     """Load motorcycle data."""
     # Already sorted by x
-    return pd.read_stata(TEST_RESOURCES_DIR / "motorcycle.dta")
+    return pd.read_stata(RESOURCES_DIR / "motorcycle.dta")
