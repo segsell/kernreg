@@ -7,5 +7,5 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 
 # Directory with additional resources for the testing harness
 TEST_DIR = ROOT_DIR / "tests"
-TEST_RESOURCES_DIR = ROOT_DIR / "tests" / "resources"
+TEST_RESOURCES = ROOT_DIR / "tests" / "resources"
 RESOURCES_DIR = ROOT_DIR / "src" / "kernreg" / "example_data"

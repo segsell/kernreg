@@ -2,9 +2,9 @@
 from typing import Any, Callable, Tuple, Union
 
 import numpy as np
-import pandas as pd
 import pytest
 
+from kernreg.config import TEST_RESOURCES
 from kernreg.smooth import (
     combine_bincounts_kernelweights,
     get_curve_estimator,
@@ -80,7 +80,7 @@ def output_zero_count() -> Tuple[np.ndarray, np.ndarray]:
 @pytest.fixture
 def output_integration_default() -> np.ndarray:
     """Output data for default arguments of gridsize, binned, truncate."""
-    return np.genfromtxt("tests/resources/toy_expect_default.csv")
+    return np.genfromtxt(TEST_RESOURCES / "toy_expect_default.csv")
 
 
 @pytest.fixture
@@ -308,13 +308,17 @@ def test_integration(
 @pytest.mark.parametrize(
     "degree, gridsize, bw, expected",
     [
-        (1, 101, 3.3, np.genfromtxt("tests/resources/mcycle_expect_user_bw.csv")),
-        (1, None, None, np.genfromtxt("tests/resources/mcycle_expect_auto_bw.csv")),
-        (3, None, None, np.genfromtxt("tests/resources/mcycle_expect_degree_3.csv")),
+        (1, 101, 3.3, np.genfromtxt(TEST_RESOURCES / "mcycle_expect_user_bw.csv")),
+        (1, None, None, np.genfromtxt(TEST_RESOURCES / "mcycle_expect_auto_bw.csv")),
+        (3, None, None, np.genfromtxt(TEST_RESOURCES / "mcycle_expect_degree_3.csv")),
     ],
 )
 def test_integration_motorcycle_data(
-    degree: int, gridsize: int, bw: Union[float, None], expected: np.ndarray
+    degree: int,
+    gridsize: int,
+    bw: Union[float, None],
+    expected: np.ndarray,
+    change_test_dir: Callable,
 ) -> None:
     """It runs locpoly on example data with and without a user-specified bandwidth."""
     motorcycle = get_example_data()
@@ -332,9 +336,9 @@ def test_integration_motorcycle_data(
 
 
 @pytest.mark.parametrize("xcol", [0, "time"])
-def test_df_sort_by_x(xcol: Union[int, str]) -> None:
+def test_df_sort_by_x(xcol: Union[int, str], change_test_dir: Callable) -> None:
     """Sort DataFrame based on column index or column name."""
-    expected = pd.read_stata("tests/resources/motorcycle.dta")
+    expected = get_example_data()
 
     data = expected.sample(frac=1)  # Shuffle rows
     data_sorted = sort_by_x(data, xcol)  # Sort by xcol

@@ -1,5 +1,5 @@
 """Test cases for the bandwidth selection."""
-from typing import List, Union
+from typing import Callable, List, Union
 
 import numpy as np
 import pytest
@@ -19,7 +19,10 @@ from kernreg.utils import get_example_data
     ],
 )
 def test_motorcycle_bw(
-    x_range: Union[None, List[int]], degree: int, expected: float
+    x_range: Union[None, List[int]],
+    degree: int,
+    expected: float,
+    change_test_dir: Callable,
 ) -> None:
     """Computes optimal bandwidth for example data set."""
     motorcycle = get_example_data()
