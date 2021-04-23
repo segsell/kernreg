@@ -8,7 +8,7 @@
 ## Introduction
 **KernReg** provides a pure-Python routine for local polynomial kernel regression based on [Wand & Jones (1995)](http://matt-wand.utsacademics.info/webWJbook/) and their accompanying *R* package [KernSmooth](https://www.rdocumentation.org/packages/KernSmooth/versions/2.23-18). In addition, **KernReg** comes with an automatic bandwidth selection procedure that minimizes the residual squares criterion proposed by [Fan & Gijbels (1996)](https://www.taylorfrancis.com/books/local-polynomial-modelling-applications-fan-gijbels/10.1201/9780203748725).
 
-**KernReg** allows for the estimation of a regression function as well as their *v*th derivatives. The degree of the polynomial *p* must be equal to ```v + 1```,
+**KernReg** allows for the estimation of a regression function as well as their *v*th derivatives using the Gaussian density function as kernel weights. The degree of the polynomial *p* must be equal to ```v + 1```,
 ```v + 3```, ```v + 5```, or ```v + 7```.
 
 <p align="center">
