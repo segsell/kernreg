@@ -8,6 +8,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx_autodoc_typehints",
     "sphinxcontrib.bibtex",
+    "insegel",
 ]
 
 bibtex_bibfiles = ["refs.bib"]
