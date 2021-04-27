@@ -8,9 +8,8 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx_autodoc_typehints",
     "sphinxcontrib.bibtex",
-    "insegel",
 ]
 
 bibtex_bibfiles = ["refs.bib"]
 
-html_theme = "insegel"
+# html_theme = "insegel"
