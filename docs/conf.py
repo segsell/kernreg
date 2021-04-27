@@ -11,3 +11,5 @@ extensions = [
 ]
 
 bibtex_bibfiles = ["refs.bib"]
+
+html_theme = "insegel"
