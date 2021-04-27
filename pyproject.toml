@@ -6,6 +6,7 @@ authors = ["Sebastian Gsell <sebastian.gsell93@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/segsell/kernreg"
+documentation = "https://kernreg.readthedocs.io"
 keywords = ["curve-fitting",
     "non-parametric",
     "local-polynomial-regression",
